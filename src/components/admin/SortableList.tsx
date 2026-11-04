@@ -18,6 +18,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { reorderWithRollback } from "@/lib/admin/reorder";
 import { useEffect, useId, useState } from "react";
 
 type Item = { id: string };
@@ -25,20 +26,23 @@ type Item = { id: string };
 function Row<T extends Item>({
   item,
   renderItem,
+  saving,
 }: {
   item: T;
+  saving: boolean;
   renderItem: (item: T, handle: React.ReactNode) => React.ReactNode;
 }) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: item.id,
+    disabled: saving,
   });
   const handle = (
     <button
       type="button"
       ref={setActivatorNodeRef}
       aria-label="순서 바꾸기 (끌어서 옮기거나, 선택 후 스페이스와 방향키를 사용하세요)"
-      title="끌어서 순서를 바꿉니다"
-      className="flex h-10 w-8 shrink-0 cursor-grab touch-none items-center justify-center text-lg text-muted hover:text-ink active:cursor-grabbing"
+      title={saving ? "저장 중…" : "끌어서 순서를 바꿉니다"}
+      className={`flex h-10 w-8 shrink-0 ${saving ? "opacity-40" : ""} cursor-grab touch-none items-center justify-center text-lg text-muted hover:text-ink active:cursor-grabbing`}
       {...attributes}
       {...listeners}
     >
@@ -71,6 +75,7 @@ export function SortableList<T extends Item>({
   const [order, setOrder] = useState(items);
   const signature = items.map((i) => i.id).join(",");
   useEffect(() => setOrder(items), [signature, items]);
+  const [saving, setSaving] = useState(false);
   const dndId = useId();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -80,17 +85,14 @@ export function SortableList<T extends Item>({
 
   function onDragEnd(e: DragEndEvent) {
     const { active, over } = e;
-    if (!over || active.id === over.id) return;
+    if (saving || !over || active.id === over.id) return;
     const from = order.findIndex((i) => i.id === active.id);
     const to = order.findIndex((i) => i.id === over.id);
     if (from < 0 || to < 0) return;
     const next = arrayMove(order, from, to);
-    const previous = order;
-    setOrder(next);
-    // 저장에 실패하면(onReorder 가 오류를 던지면) 이전 순서로 되돌린다.
-    void Promise.resolve()
-      .then(() => onReorder(next.map((i) => i.id)))
-      .catch(() => setOrder(previous));
+    setSaving(true);
+    // 저장이 끝날 때까지 다음 끌기를 막아, 되돌릴 순서가 항상 마지막으로 확정된 순서가 되게 한다.
+    void reorderWithRollback(order, next, onReorder, setOrder).finally(() => setSaving(false));
   }
 
   return (
@@ -98,7 +100,7 @@ export function SortableList<T extends Item>({
       <SortableContext items={order.map((i) => i.id)} strategy={verticalListSortingStrategy}>
         <ul className={className}>
           {order.map((item) => (
-            <Row key={item.id} item={item} renderItem={renderItem} />
+            <Row key={item.id} item={item} renderItem={renderItem} saving={saving} />
           ))}
         </ul>
       </SortableContext>
