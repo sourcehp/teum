@@ -1,3 +1,4 @@
+import { Analytics } from "@/components/site/Analytics";
 import { AttributionCapture } from "@/components/site/AttributionCapture";
 import { BannerStrip } from "@/components/site/BannerStrip";
 import { Footer } from "@/components/site/Footer";
@@ -26,6 +27,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <MobileActionBar phone={settings.phone} kakaoUrl={settings.kakao_channel_url} />
       <KakaoFloat url={settings.kakao_channel_url} />
       <AttributionCapture />
+      <Analytics ga4Id={settings.ga4_id} />
     </>
   );
 }
