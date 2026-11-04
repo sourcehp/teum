@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #f7f5f2;
+  --color-surface: #ffffff;
+  --color-ink: #1f1e1c;
+  --color-muted: #6e6a64;
+  --color-line: #e4e0da;
+  --color-accent: #b8916a;
+  --color-accent-ink: #8a6a4c;
+
+  --font-sans: "Pretendard Variable", Pretendard, system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+}
