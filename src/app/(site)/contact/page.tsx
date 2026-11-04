@@ -6,7 +6,7 @@ import { InquiryFlow } from "@/components/site/inquiry/InquiryFlow";
 import { telHref } from "@/components/site/nav";
 import { getFaqs, getProjectBySlug, getPublicSettings } from "@/lib/data/public";
 
-export const metadata: Metadata = { title: "상담 문의" };
+export const metadata: Metadata = { title: "상담 문의", alternates: { canonical: "/contact" } };
 
 function safeDecode(raw: string): string | null {
   try {

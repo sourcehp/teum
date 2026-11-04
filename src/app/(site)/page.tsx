@@ -15,9 +15,13 @@ import {
   getPublicSettings,
   getTestimonials,
 } from "@/lib/data/public";
+import type { Metadata } from "next";
+import { JsonLd } from "@/components/site/JsonLd";
+import { localBusinessJsonLd, siteUrl } from "@/lib/seo";
 import { mediaUrl } from "@/lib/media";
 
 export const revalidate = 3600;
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 const DEFAULT_TITLE = "틈 사이로 드는 빛처럼, 머물고 싶은 공간";
 
@@ -36,6 +40,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd data={localBusinessJsonLd(settings, siteUrl())} />
       <Hero
         title={settings.hero_title.trim() || DEFAULT_TITLE}
         subtitle={settings.hero_subtitle}

@@ -4,8 +4,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import type { ProjectCard as Card } from "@/lib/data/public";
 import { filterProjects, filterToQuery, parseProjectFilter, type ProjectFilter } from "@/lib/project-filters";
-import { ProjectCard } from "../ProjectCard";
 import { ProjectFilters } from "./ProjectFilters";
+import { ProjectList } from "./ProjectGridStatic";
 
 export function ProjectGrid({ projects }: { projects: Card[] }) {
   const router = useRouter();
@@ -37,13 +37,7 @@ export function ProjectGrid({ projects }: { projects: Card[] }) {
           </button>
         </div>
       ) : (
-        <ul className="mt-6 grid grid-cols-1 gap-x-6 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-          {shown.map((p, i) => (
-            <li key={p.id}>
-              <ProjectCard project={p} priority={i < 3} />
-            </li>
-          ))}
-        </ul>
+        <ProjectList projects={shown} />
       )}
     </div>
   );

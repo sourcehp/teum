@@ -5,6 +5,7 @@ import { BeforeAfterSlider } from "@/components/site/BeforeAfterSlider";
 import { Button } from "@/components/site/Button";
 import { Container } from "@/components/site/Container";
 import { ProjectCard } from "@/components/site/ProjectCard";
+import { JsonLd } from "@/components/site/JsonLd";
 import { Section } from "@/components/site/Section";
 import { TestimonialCard } from "@/components/site/TestimonialCard";
 import { Gallery } from "@/components/site/projects/Gallery";
@@ -15,6 +16,7 @@ import {
   getTestimonials,
   listPublishedProjects,
 } from "@/lib/data/public";
+import { absoluteUrl, projectJsonLd, siteUrl } from "@/lib/seo";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -37,7 +39,23 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const slug = decodeSlug((await params).slug);
   const project = slug ? await getProjectBySlug(slug) : null;
-  return { title: project?.title ?? "시공 사례" };
+  if (!project) return { title: "시공 사례" };
+  const title = project.seo_title?.trim() || project.title;
+  const description = project.seo_description?.trim() || project.summary.trim() || undefined;
+  const canonical = `/projects/${encodeURIComponent(project.slug)}`;
+  const image = project.cover ? absoluteUrl(project.cover.url, siteUrl()) : null;
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: "article",
+      title,
+      description,
+      url: canonical,
+      ...(image ? { images: [{ url: image, alt: project.cover?.alt || project.title }] } : {}),
+    },
+  };
 }
 
 export default async function ProjectDetailPage({ params }: Props) {
@@ -55,6 +73,7 @@ export default async function ProjectDetailPage({ params }: Props) {
 
   return (
     <article>
+      <JsonLd data={projectJsonLd(project, siteUrl())} />
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-line md:aspect-[21/9]">
         {project.cover ? (
           <Image

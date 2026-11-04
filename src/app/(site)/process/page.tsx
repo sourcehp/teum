@@ -7,7 +7,7 @@ import { getFaqs } from "@/lib/data/public";
 import { PROCESS_STEPS } from "@/lib/process-steps";
 
 export const revalidate = 3600;
-export const metadata: Metadata = { title: "진행 절차" };
+export const metadata: Metadata = { title: "진행 절차", alternates: { canonical: "/process" } };
 
 export default async function ProcessPage() {
   const faqs = await getFaqs();

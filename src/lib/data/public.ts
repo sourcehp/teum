@@ -150,6 +150,19 @@ export async function listPublishedProjects(): Promise<ProjectCard[]> {
   return safe([], "listPublishedProjects", () => queryProjects());
 }
 
+/** sitemap용. 공개 사례의 슬러그와 수정 시각만 가볍게 조회한다. */
+export async function listPublishedProjectSlugs(): Promise<{ slug: string; updated_at: string }[]> {
+  return safe([], "listPublishedProjectSlugs", async () => {
+    const { data, error } = await createPublicClient()
+      .from("projects")
+      .select("slug, updated_at")
+      .eq("is_published", true)
+      .order("sort_order", { ascending: true });
+    if (error) throw error;
+    return data ?? [];
+  });
+}
+
 export async function getFeaturedProjects(limit = 6): Promise<ProjectCard[]> {
   return safe([], "getFeaturedProjects", () =>
     queryProjects({ featured: true, limit }),

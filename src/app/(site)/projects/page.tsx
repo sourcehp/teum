@@ -1,11 +1,16 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Container } from "@/components/site/Container";
+import { ProjectGridStatic } from "@/components/site/projects/ProjectGridStatic";
 import { ProjectGrid } from "@/components/site/projects/ProjectGrid";
 import { listPublishedProjects } from "@/lib/data/public";
 
 export const revalidate = 3600;
-export const metadata: Metadata = { title: "시공 사례" };
+export const metadata: Metadata = {
+  title: "시공 사례",
+  description: "틈디자인스튜디오가 설계·시공한 주거·상업·오피스 공간 사례를 모아 보세요.",
+  alternates: { canonical: "/projects" },
+};
 
 export default async function ProjectsPage() {
   const projects = await listPublishedProjects();
@@ -19,7 +24,7 @@ export default async function ProjectsPage() {
             공간마다 다른 이야기를 담아 완성한 틈디자인스튜디오의 시공 사례입니다.
           </p>
         </header>
-        <Suspense fallback={<p className="text-sm text-muted">사례를 불러오는 중입니다.</p>}>
+        <Suspense fallback={<ProjectGridStatic projects={projects} />}>
           <ProjectGrid projects={projects} />
         </Suspense>
       </Container>

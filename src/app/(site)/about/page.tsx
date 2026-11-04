@@ -5,10 +5,12 @@ import { Section } from "@/components/site/Section";
 import { Guarantees } from "@/components/site/home/Guarantees";
 import { Stats } from "@/components/site/home/Stats";
 import { getPublicSettings } from "@/lib/data/public";
+import { JsonLd } from "@/components/site/JsonLd";
+import { localBusinessJsonLd, siteUrl } from "@/lib/seo";
 import { mediaUrl } from "@/lib/media";
 
 export const revalidate = 3600;
-export const metadata: Metadata = { title: "스튜디오 소개" };
+export const metadata: Metadata = { title: "스튜디오 소개", alternates: { canonical: "/about" } };
 
 const DEFAULT_PHILOSOPHY = "틈은 비어 있는 곳이 아니라 빛과 사람이 드나드는 자리입니다.";
 
@@ -31,6 +33,7 @@ export default async function AboutPage() {
 
   return (
     <>
+      <JsonLd data={localBusinessJsonLd(s, siteUrl())} />
       <PageHeader eyebrow="ABOUT" title="스튜디오 소개" />
 
       <Section eyebrow="PHILOSOPHY" title="우리가 생각하는 공간">
