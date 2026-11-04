@@ -15,7 +15,7 @@ export function FormShell({
   action: (prev: SaveState, fd: FormData) => Promise<SaveState>;
   submitLabel: string;
   resetKey: string;
-  children: (fieldErrors: Record<string, string>) => React.ReactNode;
+  children: (fieldErrors: Record<string, string>, markDirty: () => void) => React.ReactNode;
 }) {
   const [state, formAction, pending] = useActionState<SaveState, FormData>(action, { ok: false });
   const [dirty, setDirty] = useState(false);
@@ -40,7 +40,7 @@ export function FormShell({
     >
       <UnsavedGuard dirty={dirty} />
       <fieldset key={resetKey} className="space-y-5">
-        {children(state.fieldErrors ?? {})}
+        {children(state.fieldErrors ?? {}, () => setDirty(true))}
       </fieldset>
       {state.error && !state.ok ? (
         <p role="alert" className="text-sm text-red-700">

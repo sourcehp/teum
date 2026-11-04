@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { BUDGET_RANGES, CATEGORIES } from "@/lib/domain/labels";
+import { normalizePhone } from "@/lib/domain/phone";
 
 const checkbox = z
   .union([z.string(), z.boolean(), z.undefined(), z.null()])
@@ -187,3 +188,140 @@ export const bannerSchema = z.preprocess(
   }),
 );
 export type BannerInput = z.infer<typeof bannerFields>;
+
+// --- 사이트 설정 ---------------------------------------------------------------
+
+/** 비어 있음 또는 https:// 주소만 허용한다(내부 경로 `/` 는 허용하지 않음). */
+const httpsUrl = (label: string) =>
+  z
+    .union([z.string(), z.undefined(), z.null()])
+    .transform((v, ctx) => {
+      const s = (v ?? "").trim();
+      if (s === "") return "";
+      const r = bannerLink.safeParse(s);
+      if (!r.success || s.startsWith("/")) {
+        ctx.addIssue({ code: "custom", message: `${label}은(는) https:// 로 시작하는 주소만 쓸 수 있습니다` });
+        return z.NEVER;
+      }
+      return s;
+    });
+
+const settingsText = (max: number, label: string) =>
+  z
+    .union([z.string(), z.undefined(), z.null()])
+    .transform((v) => (v ?? "").replace(/\r\n/g, "\n").trim())
+    .pipe(z.string().max(max, { error: `${label}은(는) ${max.toLocaleString("ko-KR")}자까지 쓸 수 있습니다` }));
+
+const settingsPhone = z
+  .union([z.string(), z.undefined(), z.null()])
+  .transform((v, ctx) => {
+    const s = (v ?? "").trim();
+    if (s === "") return "";
+    const n = normalizePhone(s);
+    if (!n) {
+      ctx.addIssue({ code: "custom", message: "전화번호 형식이 맞지 않습니다. 예: 02-123-4567, 010-1234-5678" });
+      return z.NEVER;
+    }
+    return n;
+  });
+
+const settingsEmail = z
+  .union([z.string(), z.undefined(), z.null()])
+  .transform((v) => (v ?? "").trim())
+  .pipe(
+    z.union([
+      z.literal(""),
+      z.string().max(200, { error: "이메일은 200자까지 쓸 수 있습니다" }).pipe(z.email({ error: "이메일 형식이 맞지 않습니다" })),
+    ]),
+  );
+
+const patternText = (re: RegExp, msg: string) =>
+  z
+    .union([z.string(), z.undefined(), z.null()])
+    .transform((v) => (v ?? "").trim())
+    .pipe(z.union([z.literal(""), z.string().regex(re, { error: msg })]));
+
+export const STORAGE_IMAGE_PATH = /^(settings|partners)\/[0-9a-f-]{36}\.webp$/;
+const SAMPLE_IMAGE_PATH = /^\/samples\/[A-Za-z0-9._-]+$/;
+
+/** 빈 값(없음), Storage 경로, 또는 변경하지 않은 `/samples/...` 값만 허용한다. */
+const imagePath = z
+  .union([z.string(), z.undefined(), z.null()])
+  .transform((v, ctx) => {
+    const s = (v ?? "").trim();
+    if (s === "") return null;
+    if (STORAGE_IMAGE_PATH.test(s) || SAMPLE_IMAGE_PATH.test(s)) return s;
+    ctx.addIssue({ code: "custom", message: "사진 경로가 올바르지 않습니다. 사진을 다시 올려 주세요" });
+    return z.NEVER;
+  });
+
+/** 폼은 JSON 문자열을, 코드는 배열을 넘길 수 있다. 깨진 JSON 은 항목 오류로 돌려준다. */
+function jsonList<T extends z.ZodType>(item: T, max: number, label: string) {
+  return z
+    .union([z.string(), z.array(z.unknown()), z.undefined(), z.null()])
+    .transform((v, ctx) => {
+      if (v === undefined || v === null) return [] as unknown[];
+      if (Array.isArray(v)) return v;
+      const s = v.trim();
+      if (s === "") return [] as unknown[];
+      try {
+        const parsed: unknown = JSON.parse(s);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        /* 아래에서 오류 처리 */
+      }
+      ctx.addIssue({ code: "custom", message: `${label} 입력 형식이 올바르지 않습니다. 화면을 새로 고친 뒤 다시 시도해 주세요` });
+      return z.NEVER;
+    })
+    .pipe(z.array(item).max(max, { error: `${label}은(는) 최대 ${max}개까지 등록할 수 있습니다` }));
+}
+
+const strField = (min: number, max: number, emptyMsg: string, maxMsg: string) =>
+  z
+    .union([z.string(), z.number(), z.undefined(), z.null()])
+    .transform((v) => (v === undefined || v === null ? "" : String(v)).trim())
+    .pipe(z.string().min(min, { error: emptyMsg }).max(max, { error: maxMsg }));
+
+const statItem = z.object({
+  label: strField(1, 20, "실적 항목 이름을 입력해 주세요", "실적 항목 이름은 20자까지 쓸 수 있습니다"),
+  value: strField(1, 10, "실적 숫자를 입력해 주세요", "실적 숫자는 10자까지 쓸 수 있습니다"),
+  suffix: strField(0, 5, "", "실적 단위는 5자까지 쓸 수 있습니다"),
+});
+const guaranteeItem = z.object({
+  title: strField(1, 30, "보증 제목을 입력해 주세요", "보증 제목은 30자까지 쓸 수 있습니다"),
+  description: strField(0, 100, "", "보증 설명은 100자까지 쓸 수 있습니다"),
+});
+const partnerItem = z.object({
+  name: strField(1, 40, "파트너 이름을 입력해 주세요", "파트너 이름은 40자까지 쓸 수 있습니다"),
+  logo_path: imagePath.transform((v) => v ?? ""),
+  url: httpsUrl("파트너 링크"),
+});
+
+const settingsFields = z.object({
+  company_name: settingsText(200, "회사명"),
+  ceo_name: settingsText(200, "대표자명"),
+  business_number: settingsText(200, "사업자등록번호"),
+  address: settingsText(200, "주소"),
+  phone: settingsPhone,
+  email: settingsEmail,
+  hero_title: settingsText(200, "메인 문구"),
+  hero_subtitle: settingsText(200, "보조 문구"),
+  benefit_text: settingsText(200, "혜택 문구"),
+  philosophy_text: settingsText(3000, "디자인 철학"),
+  ceo_greeting: settingsText(3000, "대표 인사말"),
+  instagram_url: httpsUrl("인스타그램 주소"),
+  blog_url: httpsUrl("블로그 주소"),
+  kakao_channel_url: httpsUrl("카카오톡 채널 주소"),
+  notify_email: settingsEmail,
+  ga4_id: patternText(/^G-[A-Z0-9]+$/, "측정 ID 는 G- 로 시작하는 영문 대문자·숫자여야 합니다 (예: G-ABC123XYZ)"),
+  naver_site_verification: patternText(/^[A-Za-z0-9_-]{1,100}$/, "인증 값은 영문, 숫자, -, _ 만 쓸 수 있습니다 (100자 이내)"),
+  google_site_verification: patternText(/^[A-Za-z0-9_-]{1,100}$/, "인증 값은 영문, 숫자, -, _ 만 쓸 수 있습니다 (100자 이내)"),
+  logo_path: imagePath,
+  hero_image_path: imagePath,
+  ceo_image_path: imagePath,
+  stats: jsonList(statItem, 6, "실적"),
+  guarantees: jsonList(guaranteeItem, 6, "보증"),
+  partners: jsonList(partnerItem, 20, "파트너"),
+});
+export const settingsSchema = z.preprocess(fromForm(settingsFields), settingsFields);
+export type SettingsInput = z.infer<typeof settingsFields>;

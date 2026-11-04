@@ -8,7 +8,7 @@ export const metadata = { title: "대시보드" };
 
 export default async function DashboardPage() {
   const { supabase } = await requireAdmin();
-  const [newInq, recent, projects, sampleProjects, sampleTestimonials] = await Promise.all([
+  const [newInq, recent, projects, sampleProjects, sampleTestimonials, company] = await Promise.all([
     supabase.from("inquiries").select("id", { count: "exact", head: true }).eq("status", "new"),
     supabase
       .from("inquiries")
@@ -26,13 +26,25 @@ export default async function DashboardPage() {
       .select("id", { count: "exact", head: true })
       .eq("is_published", true)
       .eq("is_sample", true),
+    supabase.from("site_settings").select("company_name, phone, address").eq("id", 1).maybeSingle(),
   ]);
+  const c = company.data;
+  const companyEmpty = !c || !c.company_name.trim() || !c.phone.trim() || !c.address.trim();
   const sampleCount = (sampleProjects.count ?? 0) + (sampleTestimonials.count ?? 0);
 
   return (
     <div>
       <PageHeader title="대시보드" />
       <SampleWarning count={sampleCount} />
+      {companyEmpty ? (
+        <p role="note" className="mb-6 border border-accent bg-accent/10 px-4 py-3 text-sm">
+          회사 정보가 비어 있습니다 —{" "}
+          <Link href="/admin/settings" className="font-medium text-accent-ink underline">
+            사이트 설정
+          </Link>
+          에서 입력해 주세요
+        </p>
+      ) : null}
       <div className="mb-8 grid gap-4 sm:grid-cols-2">
         <Link href="/admin/inquiries?status=new" className="border border-line bg-surface p-5 hover:border-accent">
           <p className="text-sm text-muted">신규 문의</p>

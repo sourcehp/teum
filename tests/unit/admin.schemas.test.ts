@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bannerSchema, faqSchema, projectSchema, testimonialSchema } from "@/lib/admin/schemas";
+import { bannerSchema, faqSchema, projectSchema, settingsSchema, testimonialSchema } from "@/lib/admin/schemas";
 
 const base = { title: "성수동 32평", category: "residential" };
 
@@ -121,5 +121,89 @@ describe("bannerSchema", () => {
     expect(bannerSchema.safeParse({ ...b, message: "가".repeat(81) }).success).toBe(false);
     expect(bannerSchema.safeParse({ ...b, message: "" }).success).toBe(false);
     expect(bannerSchema.safeParse({ ...b, starts_on: "" }).success).toBe(false);
+  });
+});
+
+describe("settingsSchema", () => {
+  const ok = (o: Record<string, unknown> = {}) => settingsSchema.safeParse(o);
+  const msgs = (o: Record<string, unknown>) => {
+    const r = ok(o);
+    return r.success ? [] : r.error.issues.map((i) => String(i.path[0]));
+  };
+
+  it("빈 폼은 통과하고 기본값을 채운다", () => {
+    const r = ok({});
+    expect(r.success).toBe(true);
+    if (r.success) {
+      expect(r.data.phone).toBe("");
+      expect(r.data.stats).toEqual([]);
+      expect(r.data.logo_path).toBeNull();
+    }
+  });
+
+  it("ga4_id: UA-123 거부, G-ABC123 허용, 빈 값 허용", () => {
+    expect(msgs({ ga4_id: "UA-123" })).toContain("ga4_id");
+    expect(ok({ ga4_id: "G-ABC123" }).success).toBe(true);
+    expect(ok({ ga4_id: "" }).success).toBe(true);
+  });
+
+  it("실적 7개는 거부, 6개는 허용", () => {
+    const row = { label: "a", value: "1", suffix: "건" };
+    expect(msgs({ stats: JSON.stringify(Array(7).fill(row)) })).toContain("stats");
+    expect(ok({ stats: JSON.stringify(Array(6).fill(row)) }).success).toBe(true);
+  });
+
+  it("깨진 JSON 은 오류로 돌려준다", () => {
+    expect(msgs({ stats: "{not json" })).toContain("stats");
+    expect(msgs({ guarantees: '{"a":1}' })).toContain("guarantees");
+  });
+
+  it("실적·보증·파트너 항목 한도", () => {
+    expect(msgs({ stats: JSON.stringify([{ label: "", value: "1", suffix: "" }]) })).toContain("stats");
+    expect(msgs({ stats: JSON.stringify([{ label: "a", value: "12345678901", suffix: "" }]) })).toContain("stats");
+    expect(msgs({ stats: JSON.stringify([{ label: "a", value: "1", suffix: "123456" }]) })).toContain("stats");
+    expect(msgs({ guarantees: JSON.stringify([{ title: "t", description: "x".repeat(101) }]) })).toContain("guarantees");
+    expect(msgs({ guarantees: JSON.stringify(Array(7).fill({ title: "t", description: "" })) })).toContain("guarantees");
+    expect(msgs({ partners: JSON.stringify(Array(21).fill({ name: "n", logo_path: "", url: "" })) })).toContain("partners");
+    expect(msgs({ partners: JSON.stringify([{ name: "n", logo_path: "", url: "http://x.com" }]) })).toContain("partners");
+    expect(msgs({ partners: JSON.stringify([{ name: "n", logo_path: "../x.webp", url: "" }]) })).toContain("partners");
+    expect(ok({ partners: JSON.stringify([{ name: "n", logo_path: `partners/${crypto.randomUUID()}.webp`, url: "https://a.com" }]) }).success).toBe(true);
+  });
+
+  it("notify_email 형식 오류 거부", () => {
+    expect(msgs({ notify_email: "not-an-email" })).toContain("notify_email");
+    expect(ok({ notify_email: "a@b.co" }).success).toBe(true);
+    expect(ok({ notify_email: "" }).success).toBe(true);
+  });
+
+  it("URL 은 https 만(내부 경로·javascript 거부)", () => {
+    expect(msgs({ instagram_url: "http://x.com" })).toContain("instagram_url");
+    expect(msgs({ blog_url: "/contact" })).toContain("blog_url");
+    expect(msgs({ kakao_channel_url: "javascript:alert(1)" })).toContain("kakao_channel_url");
+    expect(ok({ instagram_url: "https://instagram.com/teum" }).success).toBe(true);
+  });
+
+  it("전화번호는 정규화해 저장, 잘못된 값 거부", () => {
+    const r = ok({ phone: "+82 10 1234 5678" });
+    expect(r.success && r.data.phone).toBe("010-1234-5678");
+    expect(msgs({ phone: "abc" })).toContain("phone");
+  });
+
+  it("인증 값은 meta content 로 안전한 문자만", () => {
+    expect(msgs({ naver_site_verification: 'x"><script>' })).toContain("naver_site_verification");
+    expect(msgs({ google_site_verification: "a".repeat(101) })).toContain("google_site_verification");
+    expect(ok({ google_site_verification: "abc_DEF-123" }).success).toBe(true);
+  });
+
+  it("글자 수 한도: 일반 200, 소개·인사말 3000", () => {
+    expect(msgs({ company_name: "가".repeat(201) })).toContain("company_name");
+    expect(msgs({ ceo_greeting: "가".repeat(3001) })).toContain("ceo_greeting");
+    expect(ok({ ceo_greeting: "가".repeat(3000) }).success).toBe(true);
+  });
+
+  it("이미지 경로: 허용 형식만", () => {
+    expect(msgs({ logo_path: "projects/x.webp" })).toContain("logo_path");
+    expect(msgs({ hero_image_path: "https://evil.com/a.webp" })).toContain("hero_image_path");
+    expect(ok({ logo_path: `settings/${crypto.randomUUID()}.webp`, hero_image_path: "/samples/a.webp", ceo_image_path: "" }).success).toBe(true);
   });
 });
