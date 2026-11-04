@@ -8,6 +8,7 @@ import { ProcessSummary } from "@/components/site/home/ProcessSummary";
 import { QuickInquiry } from "@/components/site/home/QuickInquiry";
 import { Stats } from "@/components/site/home/Stats";
 import { Testimonials } from "@/components/site/home/Testimonials";
+import { VisualWorks } from "@/components/site/home/VisualWorks";
 import {
   getBeforeAfterHighlight,
   getFaqs,
@@ -51,6 +52,7 @@ export default async function HomePage() {
       <Stats stats={settings.stats} />
       <FeaturedProjects projects={projects} />
       <BeforeAfterHighlight data={highlight} />
+      <VisualWorks visualWorks={settings.visual_works} />
       <Guarantees guarantees={settings.guarantees} />
       <Testimonials items={testimonials} />
       <ProcessSummary />

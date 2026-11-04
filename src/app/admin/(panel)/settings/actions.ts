@@ -33,7 +33,7 @@ export async function saveSettings(_prev: SaveState, fd: FormData): Promise<Save
 
   const { data: before, error: readErr } = await supabase
     .from("site_settings")
-    .select("logo_path, hero_image_path, ceo_image_path, partners")
+    .select("logo_path, hero_image_path, ceo_image_path, partners, visual_works")
     .eq("id", 1)
     .maybeSingle();
   if (readErr) return { ok: false, error: GENERIC_ERROR };
@@ -46,10 +46,15 @@ export async function saveSettings(_prev: SaveState, fd: FormData): Promise<Save
     const next = new Set<string>([
       ...[parsed.data.logo_path, parsed.data.hero_image_path, parsed.data.ceo_image_path].filter((x): x is string => !!x),
       ...partnerLogos(parsed.data.partners),
+      ...partnerLogos(parsed.data.visual_works),
     ]);
-    const old = [before.logo_path, before.hero_image_path, before.ceo_image_path, ...partnerLogos(before.partners)].filter(
-      (x): x is string => !!x,
-    );
+    const old = [
+      before.logo_path,
+      before.hero_image_path,
+      before.ceo_image_path,
+      ...partnerLogos(before.partners),
+      ...partnerLogos(before.visual_works),
+    ].filter((x): x is string => !!x);
     await removeStorage(supabase, old.filter((p) => !next.has(p)));
   }
 

@@ -242,7 +242,7 @@ const patternText = (re: RegExp, msg: string) =>
     .transform((v) => (v ?? "").trim())
     .pipe(z.union([z.literal(""), z.string().regex(re, { error: msg })]));
 
-export const STORAGE_IMAGE_PATH = /^(settings|partners)\/[0-9a-f-]{36}\.webp$/;
+export const STORAGE_IMAGE_PATH = /^(settings|partners|visual)\/[0-9a-f-]{36}\.webp$/;
 const SAMPLE_IMAGE_PATH = /^\/samples\/[a-z0-9-]+\.webp$/;
 
 /** 빈 값(없음), Storage 경로, 또는 변경하지 않은 `/samples/...` 값만 허용한다. */
@@ -297,6 +297,12 @@ const partnerItem = z.object({
   logo_path: imagePath.transform((v) => v ?? ""),
   url: httpsUrl("파트너 링크"),
 });
+const visualWorkItem = z.object({
+  client_name: strField(1, 40, "클라이언트명을 입력해 주세요", "클라이언트명은 40자까지 쓸 수 있습니다"),
+  summary: strField(0, 80, "", "작업 내용은 80자까지 쓸 수 있습니다"),
+  logo_path: imagePath.transform((v) => v ?? ""),
+  url: httpsUrl("작업 링크"),
+});
 
 const settingsFields = z.object({
   company_name: settingsText(200, "회사명"),
@@ -323,6 +329,7 @@ const settingsFields = z.object({
   stats: jsonList(statItem, 6, "실적"),
   guarantees: jsonList(guaranteeItem, 6, "보증"),
   partners: jsonList(partnerItem, 20, "파트너"),
+  visual_works: jsonList(visualWorkItem, 20, "시각 디자인 작업"),
 });
 export const settingsSchema = z.preprocess(fromForm(settingsFields), settingsFields);
 export type SettingsInput = z.infer<typeof settingsFields>;

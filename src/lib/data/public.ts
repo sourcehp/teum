@@ -66,6 +66,7 @@ export const DEFAULT_SETTINGS: PublicSettings = {
   stats: [],
   guarantees: [],
   partners: [],
+  visual_works: [],
   updated_at: new Date(0).toISOString(),
 };
 

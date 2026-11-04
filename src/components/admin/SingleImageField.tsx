@@ -20,7 +20,7 @@ export function SingleImageField({
 }: {
   label: string;
   name?: string;
-  folder: "settings" | "partners";
+  folder: "settings" | "partners" | "visual";
   initialPath: string | null;
   hint?: string;
   onChange?: (path: string) => void;

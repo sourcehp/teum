@@ -31,6 +31,7 @@ export type SettingsValues = {
   stats: Record<string, unknown>[];
   guarantees: Record<string, unknown>[];
   partners: Record<string, unknown>[];
+  visual_works: Record<string, unknown>[];
   updated_at: string;
 };
 
@@ -95,6 +96,24 @@ export function SettingsForm({
             <Area label="디자인 철학" name="philosophy_text" value={v.philosophy_text} rows={5} max={3000} hint="3,000자까지 쓸 수 있습니다" error={fe.philosophy_text} />
             <Area label="대표 인사말" name="ceo_greeting" value={v.ceo_greeting} rows={6} max={3000} hint="3,000자까지 쓸 수 있습니다" error={fe.ceo_greeting} />
             <SingleImageField label="대표 사진" name="ceo_image_path" folder="settings" initialPath={v.ceo_image_path} onChange={markDirty} hint="인사말 옆에 보입니다. 비워 두면 사진 없이 표시됩니다." />
+          </Section>
+
+          <Section title="시각 디자인(BI) 작업" help="시공 사례와 별개로, 로고·브랜드 디자인(BI) 작업만 모아 보여줍니다. 시공 사례 페이지의 '시각 디자인' 탭과 홈 화면에 표시됩니다.">
+            <JsonListEditor
+              name="visual_works"
+              itemLabel="작업"
+              addLabel="작업 추가"
+              max={20}
+              initial={v.visual_works}
+              error={fe.visual_works}
+              onDirty={markDirty}
+              fields={[
+                { key: "client_name", label: "클라이언트명 (40자 이내)", maxLength: 40 },
+                { key: "summary", label: "작업 내용 (80자 이내, 선택)", maxLength: 80, placeholder: "로고·BI 디자인" },
+                { key: "url", label: "작업 링크 (https:// 로 시작, 선택)", maxLength: 500, placeholder: "https://" },
+                { key: "logo_path", label: "로고", kind: "image", folder: "visual" },
+              ]}
+            />
           </Section>
 
           <Section title="실적 · 보증 · 파트너" help="홈페이지 중간의 실적 숫자, 보증 약속, 언론·파트너 로고에 표시됩니다.">

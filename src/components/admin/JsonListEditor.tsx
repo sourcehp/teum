@@ -12,7 +12,7 @@ export type JsonField = {
   placeholder?: string;
   kind?: "text" | "image";
   /** 이미지 칸일 때 Storage 폴더 */
-  folder?: "settings" | "partners";
+  folder?: "settings" | "partners" | "visual";
   /** 한 줄로 좁게 보일 칸(짧은 값) */
   narrow?: boolean;
 };

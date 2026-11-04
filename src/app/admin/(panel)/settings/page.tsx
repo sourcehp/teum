@@ -23,7 +23,7 @@ export default async function SettingsPage() {
 
   const stats = asRecords(row.stats);
   const guarantees = asRecords(row.guarantees);
-  const initial: SettingsValues = { ...row, stats, guarantees, partners: asRecords(row.partners) };
+  const initial: SettingsValues = { ...row, stats, guarantees, partners: asRecords(row.partners), visual_works: asRecords(row.visual_works) };
 
   return (
     <div className="max-w-3xl">
