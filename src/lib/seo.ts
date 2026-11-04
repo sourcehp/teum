@@ -7,7 +7,9 @@ export const DEFAULT_DESCRIPTION =
   "주거·상업·오피스 공간을 상담부터 설계, 시공, 사후관리까지 책임지는 인테리어 설계·시공 스튜디오, 틈디자인스튜디오입니다.";
 
 export function siteUrl(): string {
-  return (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/+$/, "");
+  const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+  const raw = process.env.NEXT_PUBLIC_SITE_URL || (vercel ? `https://${vercel}` : "") || "http://localhost:3000";
+  return raw.replace(/\/+$/, "");
 }
 
 export function pageTitle(t?: string): string {

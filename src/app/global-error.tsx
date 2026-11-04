@@ -22,11 +22,27 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
         <p style={{ marginTop: 16, color: "#6E6A64", fontSize: 14, lineHeight: 1.7 }}>
           잠시 후 다시 시도해 주세요. 문제가 계속되면 전화나 카카오톡으로 문의해 주세요.
         </p>
+        <a
+          href="/contact"
+          style={{
+            marginTop: 32,
+            display: "inline-flex",
+            alignItems: "center",
+            minHeight: 44,
+            padding: "0 28px",
+            border: "1px solid #1F1E1C",
+            color: "#1F1E1C",
+            fontSize: 14,
+            textDecoration: "none",
+          }}
+        >
+          상담 문의
+        </a>
         <button
           type="button"
           onClick={() => reset()}
           style={{
-            marginTop: 32,
+            marginTop: 12,
             minHeight: 44,
             padding: "0 28px",
             border: 0,

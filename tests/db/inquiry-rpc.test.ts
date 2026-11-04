@@ -54,6 +54,16 @@ describe("submit_inquiry_step1", () => {
     expect(rows).toHaveLength(0);
   });
 
+  it("step1 throws forbidden when the stored secret is empty (even with an empty secret)", async () => {
+    await sql(`update private.app_config set value = '' where key = 'inquiry_rpc_secret'`);
+    try {
+      const { error } = await step1({ p_secret: "" });
+      expect(error?.message).toBe("forbidden");
+    } finally {
+      await sql(`update private.app_config set value = $1 where key = 'inquiry_rpc_secret'`, [RPC_SECRET]);
+    }
+  });
+
   it("step1 with null secret throws forbidden", async () => {
     const { error } = await step1({ p_secret: null });
     expect(error?.message).toBe("forbidden");

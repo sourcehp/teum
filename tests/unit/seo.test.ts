@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { DEFAULT_SETTINGS } from "@/lib/data/public";
-import { absoluteUrl, jsonLdScript, localBusinessJsonLd, pageTitle, projectJsonLd } from "@/lib/seo";
+import { absoluteUrl, jsonLdScript, localBusinessJsonLd, pageTitle, projectJsonLd, siteUrl } from "@/lib/seo";
 
 const SITE = "https://teum.example";
 const base = { ...DEFAULT_SETTINGS, company_name: "(주)틈디자인스튜디오" };
@@ -60,5 +60,26 @@ describe("helpers", () => {
     const s = jsonLdScript({ name: "</script><b>" });
     expect(s).not.toContain("<");
     expect(JSON.parse(s).name).toBe("</script><b>");
+  });
+});
+
+describe("siteUrl", () => {
+  afterEach(() => vi.unstubAllEnvs());
+  const env = (o: Record<string, string>) => {
+    for (const k of ["NEXT_PUBLIC_SITE_URL", "VERCEL_PROJECT_PRODUCTION_URL", "VERCEL_URL"]) vi.stubEnv(k, o[k] ?? "");
+  };
+  it("NEXT_PUBLIC_SITE_URL 우선, 끝의 슬래시 제거", () => {
+    env({ NEXT_PUBLIC_SITE_URL: "https://teum.example/", VERCEL_URL: "x.vercel.app" });
+    expect(siteUrl()).toBe("https://teum.example");
+  });
+  it("없으면 Vercel 운영 주소, 그다음 배포 주소", () => {
+    env({ VERCEL_PROJECT_PRODUCTION_URL: "teum.vercel.app", VERCEL_URL: "teum-abc.vercel.app" });
+    expect(siteUrl()).toBe("https://teum.vercel.app");
+    env({ VERCEL_URL: "teum-abc.vercel.app" });
+    expect(siteUrl()).toBe("https://teum-abc.vercel.app");
+  });
+  it("모두 없으면 localhost", () => {
+    env({});
+    expect(siteUrl()).toBe("http://localhost:3000");
   });
 });
