@@ -98,7 +98,7 @@ export function SettingsForm({
             <SingleImageField label="대표 사진" name="ceo_image_path" folder="settings" initialPath={v.ceo_image_path} onChange={markDirty} hint="인사말 옆에 보입니다. 비워 두면 사진 없이 표시됩니다." />
           </Section>
 
-          <Section title="시각 디자인(BI) 작업" help="시공 사례와 별개로, 로고·브랜드 디자인(BI) 작업만 모아 보여줍니다. 시공 사례 페이지의 '시각 디자인' 탭과 홈 화면에 표시됩니다.">
+          <Section title="시각 디자인(BI) 작업" help="시공 사례와 별개로, 로고·브랜드 디자인(BI) 작업만 모아 보여줍니다. 시공 사례 페이지 아래쪽과 홈 화면에 표시됩니다.">
             <JsonListEditor
               name="visual_works"
               itemLabel="작업"

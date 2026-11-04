@@ -23,10 +23,10 @@ export default async function ProjectsPage() {
           <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-accent-ink">PROJECTS</p>
           <h1 className="text-3xl font-semibold tracking-tight md:text-5xl">시공 사례</h1>
           <p className="mt-4 max-w-xl leading-relaxed text-muted">
-            공간마다 다른 이야기를 담아 완성한 틈디자인스튜디오의 공간 디자인 사례입니다.
+            공간마다 다른 이야기를 담아 완성한 틈디자인스튜디오의 시공 사례입니다.
           </p>
         </header>
-        <h2 className="sr-only">공간 디자인 사례 목록</h2>
+        <h2 className="sr-only">시공 사례 목록</h2>
         <Suspense fallback={<ProjectGridStatic projects={projects} />}>
           <ProjectGrid projects={projects} />
         </Suspense>
@@ -37,7 +37,7 @@ export default async function ProjectsPage() {
           <header className="mb-10">
             <p className="mb-3 text-xs font-medium uppercase tracking-[0.24em] text-accent-ink">VISUAL IDENTITY</p>
             <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">시각 디자인(BI)</h2>
-            <p className="mt-3 max-w-xl leading-relaxed text-muted">공간 디자인과 함께 진행한 로고·브랜드 디자인 작업입니다.</p>
+            <p className="mt-3 max-w-xl leading-relaxed text-muted">틈디자인스튜디오가 진행한 로고·브랜드 디자인 작업입니다.</p>
           </header>
           <VisualWorkGrid items={visualWorks} />
         </Container>

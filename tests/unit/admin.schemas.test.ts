@@ -170,6 +170,21 @@ describe("settingsSchema", () => {
     expect(ok({ partners: JSON.stringify([{ name: "n", logo_path: `partners/${crypto.randomUUID()}.webp`, url: "https://a.com" }]) }).success).toBe(true);
   });
 
+  it("시각 디자인 작업 항목 한도와 로고 경로", () => {
+    expect(msgs({ visual_works: JSON.stringify(Array(21).fill({ client_name: "n", summary: "", logo_path: "", url: "" })) })).toContain(
+      "visual_works",
+    );
+    expect(msgs({ visual_works: JSON.stringify([{ client_name: "", summary: "", logo_path: "", url: "" }]) })).toContain("visual_works");
+    expect(msgs({ visual_works: JSON.stringify([{ client_name: "n", summary: "", logo_path: "partners/x.webp", url: "" }]) })).toContain(
+      "visual_works",
+    );
+    expect(
+      ok({
+        visual_works: JSON.stringify([{ client_name: "n", summary: "로고 디자인", logo_path: `visual/${crypto.randomUUID()}.webp`, url: "" }]),
+      }).success,
+    ).toBe(true);
+  });
+
   it("notify_email 형식 오류 거부", () => {
     expect(msgs({ notify_email: "not-an-email" })).toContain("notify_email");
     expect(ok({ notify_email: "a@b.co" }).success).toBe(true);

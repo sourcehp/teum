@@ -60,7 +60,7 @@ export function AdminNav({
                   <span>{it.label}</span>
                   {"badge" in it && newCount > 0 ? (
                     <span
-                      className="min-w-5 bg-accent px-1.5 py-0.5 text-center text-xs font-semibold text-white"
+                      className="min-w-5 bg-accent-ink px-1.5 py-0.5 text-center text-xs font-semibold text-white"
                       aria-label={`신규 ${newCount}건`}
                     >
                       {newCount}

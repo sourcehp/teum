@@ -225,7 +225,7 @@ export function ImageManager({
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={mediaUrl(img.storage_path) ?? ""} alt={img.alt} className="h-full w-full object-cover" />
                     {role ? (
-                      <span className="absolute left-1 top-1 bg-accent px-1.5 py-0.5 text-[11px] font-medium text-white">
+                      <span className="absolute left-1 top-1 bg-accent-ink px-1.5 py-0.5 text-[11px] font-medium text-white">
                         {ROLE_LABEL[role]}
                       </span>
                     ) : null}
