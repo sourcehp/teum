@@ -1,4 +1,7 @@
--- 샘플 콘텐츠(is_sample = true). 여러 번 실행해도 안전하다(맨 앞에서 기존 샘플을 지운다).
+-- 샘플 콘텐츠. 다시 실행하면 다음과 같이 동작한다.
+--   projects(project_images 포함)·testimonials: is_sample = true 행을 지우고 다시 만든다.
+--   faqs·banners: 고정 id(f0000000-..., b0000000-...) 행만 지우고 다시 만든다. 관리자가 만든 행은 건드리지 않는다.
+--   site_settings: 비어 있는 항목('' 또는 '[]')만 샘플 값으로 채우고, 이미 입력된 값은 덮어쓰지 않는다.
 -- 사진은 저장소의 public/samples/*.webp(1600x1067)를 '/samples/...' 경로로 가리킨다.
 -- 운영 전환 전에 실제 콘텐츠로 교체하거나 비공개 처리한다.
 
@@ -98,14 +101,15 @@ insert into public.faqs (id, question, answer, is_published, sort_order) values
 insert into public.banners (id, message, link_url, starts_on, ends_on, is_active) values
   ('b0000000-0000-4000-8000-000000000001', '이번 달 무료 현장 상담 접수 중입니다', '/contact', current_date - 1, current_date + 60, true);
 
--- 사이트 설정(1행). 회사명 외 회사 정보는 "입력 필요" 표시 문구.
+-- 사이트 설정(1행). 회사명 외 회사 정보(대표자·사업자번호·주소·전화·이메일)는 빈 값으로 두고 관리자가 채운다.
+-- 이미 값이 있는 항목은 유지하고 빈 항목만 채운다.
 -- seed-local.sql은 on conflict do nothing이므로 이 값이 그대로 남는다.
 insert into public.site_settings (
   id, company_name, ceo_name, business_number, address, phone, email,
   hero_title, hero_subtitle, benefit_text, philosophy_text, ceo_greeting,
   stats, guarantees, partners
 ) values (
-  1, '(주)틈디자인스튜디오', '입력 필요', '입력 필요', '입력 필요', '입력 필요', '입력 필요',
+  1, '(주)틈디자인스튜디오', '', '', '', '', '',
   '빛이 드는 틈을 만드는 인테리어', '공간의 여백에서 일상의 여유가 시작됩니다.',
   '상담부터 시공 후 관리까지 한 팀이 책임집니다.',
   '꽉 채우지 않고 한 줄기 빛이 들어올 틈을 남기는 것이 우리가 공간을 대하는 방식입니다.',
@@ -120,12 +124,19 @@ insert into public.site_settings (
   '[]'::jsonb
 )
 on conflict (id) do update set
-  company_name = excluded.company_name, ceo_name = excluded.ceo_name,
-  business_number = excluded.business_number, address = excluded.address,
-  phone = excluded.phone, email = excluded.email,
-  hero_title = excluded.hero_title, hero_subtitle = excluded.hero_subtitle,
-  benefit_text = excluded.benefit_text, philosophy_text = excluded.philosophy_text,
-  ceo_greeting = excluded.ceo_greeting,
-  stats = excluded.stats, guarantees = excluded.guarantees, partners = excluded.partners;
+  company_name = case when public.site_settings.company_name = '' then excluded.company_name else public.site_settings.company_name end,
+  ceo_name = case when public.site_settings.ceo_name = '' then excluded.ceo_name else public.site_settings.ceo_name end,
+  business_number = case when public.site_settings.business_number = '' then excluded.business_number else public.site_settings.business_number end,
+  address = case when public.site_settings.address = '' then excluded.address else public.site_settings.address end,
+  phone = case when public.site_settings.phone = '' then excluded.phone else public.site_settings.phone end,
+  email = case when public.site_settings.email = '' then excluded.email else public.site_settings.email end,
+  hero_title = case when public.site_settings.hero_title = '' then excluded.hero_title else public.site_settings.hero_title end,
+  hero_subtitle = case when public.site_settings.hero_subtitle = '' then excluded.hero_subtitle else public.site_settings.hero_subtitle end,
+  benefit_text = case when public.site_settings.benefit_text = '' then excluded.benefit_text else public.site_settings.benefit_text end,
+  philosophy_text = case when public.site_settings.philosophy_text = '' then excluded.philosophy_text else public.site_settings.philosophy_text end,
+  ceo_greeting = case when public.site_settings.ceo_greeting = '' then excluded.ceo_greeting else public.site_settings.ceo_greeting end,
+  stats = case when public.site_settings.stats = '[]'::jsonb then excluded.stats else public.site_settings.stats end,
+  guarantees = case when public.site_settings.guarantees = '[]'::jsonb then excluded.guarantees else public.site_settings.guarantees end,
+  partners = case when public.site_settings.partners = '[]'::jsonb then excluded.partners else public.site_settings.partners end;
 
 commit;

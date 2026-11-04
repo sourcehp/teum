@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import {
   getActiveBanner,
@@ -137,4 +138,24 @@ describe("조회 실패", () => {
       spy.mockRestore();
     }
   }, 30000);
+});
+
+describe("샘플 SQL 재실행", () => {
+  it("이미 입력된 사이트 설정 값은 덮어쓰지 않고 빈 값만 채운다", async () => {
+    const [orig] = await sql<{ hero_title: string; phone: string }>(
+      "select hero_title, phone from public.site_settings where id = 1",
+    );
+    try {
+      await sql("update public.site_settings set hero_title = '운영 문구', phone = '' where id = 1");
+      await sql(readFileSync("supabase/sample-content.sql", "utf8"));
+      const [row] = await sql<{ hero_title: string; phone: string; stats: unknown[] }>(
+        "select hero_title, phone, stats from public.site_settings where id = 1",
+      );
+      expect(row.hero_title).toBe("운영 문구");
+      expect(row.phone).toBe("");
+      expect(row.stats).toHaveLength(4);
+    } finally {
+      await sql("update public.site_settings set hero_title = $1, phone = $2 where id = 1", [orig.hero_title, orig.phone]);
+    }
+  });
 });
