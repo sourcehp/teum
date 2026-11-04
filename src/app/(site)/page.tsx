@@ -4,7 +4,6 @@ import { FeaturedProjects } from "@/components/site/home/FeaturedProjects";
 import { Guarantees } from "@/components/site/home/Guarantees";
 import { Hero } from "@/components/site/home/Hero";
 import { Partners } from "@/components/site/home/Partners";
-import { Philosophy } from "@/components/site/home/Philosophy";
 import { ProcessSummary } from "@/components/site/home/ProcessSummary";
 import { QuickInquiry } from "@/components/site/home/QuickInquiry";
 import { Stats } from "@/components/site/home/Stats";
@@ -50,7 +49,6 @@ export default async function HomePage() {
         imageUrl={heroImage}
         imageAlt={heroAlt}
       />
-      <Philosophy text={settings.philosophy_text} />
       <Stats stats={settings.stats} />
       <FeaturedProjects projects={projects} />
       <BeforeAfterHighlight data={highlight} />
