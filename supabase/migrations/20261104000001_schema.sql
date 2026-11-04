@@ -20,7 +20,7 @@ create table public.projects (
   title text not null,
   category text not null check (category in ('residential', 'commercial', 'office', 'other')),
   location text not null default '',
-  area_pyeong numeric not null check (area_pyeong > 0),
+  area_pyeong numeric check (area_pyeong > 0),
   budget_range text not null default 'undisclosed'
     check (budget_range in ('under_30m', '30m_50m', '50m_100m', 'over_100m', 'undisclosed')),
   duration_weeks int check (duration_weeks > 0),

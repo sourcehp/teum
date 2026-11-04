@@ -35,6 +35,16 @@ describe("projects and project_images", () => {
     expect(row).toEqual({ cover_image_id: null, before_image_id: before.id, after_image_id: after.id });
   });
 
+  it("project can be inserted without area_pyeong", async () => {
+    const [project] = await sql<{ id: string; area_pyeong: string | null }>(
+      `insert into public.projects (slug, title, category)
+       values ($1, '면적 없는 사례', 'commercial') returning id, area_pyeong`,
+      [`schema-${crypto.randomUUID()}`],
+    );
+    projectIds.push(project.id);
+    expect(project.area_pyeong).toBeNull();
+  });
+
   it("deleting a project deletes its images", async () => {
     const [project] = await sql<{ id: string }>(
       `insert into public.projects (slug, title, category, area_pyeong)
