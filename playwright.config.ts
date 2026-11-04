@@ -38,6 +38,7 @@ export default defineConfig({
   },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
-    { name: "mobile", use: { ...devices["Pixel 7"] } },
+    // 관리자 E2E는 데스크톱에서만 돈다(문의 접수만 모바일도 확인).
+    { name: "mobile", use: { ...devices["Pixel 7"] }, testMatch: /inquiry\.spec\.ts/ },
   ],
 });
