@@ -1,0 +1,1 @@
+-- 샘플 콘텐츠(is_sample = true). Task 5에서 채운다.
