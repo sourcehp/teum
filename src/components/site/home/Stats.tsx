@@ -10,7 +10,7 @@ export function Stats({ stats }: { stats: unknown }) {
   return (
     <section aria-label="실적" className="border-y border-line py-12 md:py-16">
       <Container>
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4">
+        <dl className={`grid grid-cols-2 gap-x-6 gap-y-10 ${items.length >= 4 ? "md:grid-cols-4" : "sm:grid-cols-3"}`}>
           {items.map((s) => (
             <div key={s.label}>
               <dd className="order-1 flex items-baseline gap-1.5">

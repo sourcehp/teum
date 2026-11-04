@@ -1,13 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #f7f5f2;
+  /* 실제 회사 로고(tdS)에서 뽑은 색: 세이지 그레이 #A6ABA0 + 코랄 #EEA594.
+     accent/accent-ink는 흰 글자와의 명도 대비를 위해 코랄을 더 짙게 보정했다. */
+  --color-bg: #f6f6f3;
   --color-surface: #ffffff;
-  --color-ink: #1f1e1c;
-  --color-muted: #6e6a64;
-  --color-line: #e4e0da;
-  --color-accent: #b8916a;
-  --color-accent-ink: #8a6a4c;
+  --color-ink: #201f1c;
+  --color-muted: #6b6f67;
+  --color-line: #e2e3dd;
+  --color-accent: #c97458;
+  --color-accent-ink: #a85139;
+  --color-sage: #a6aba0;
 
   --font-sans: "Pretendard Variable", Pretendard, system-ui, sans-serif;
 }

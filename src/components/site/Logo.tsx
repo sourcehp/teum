@@ -5,7 +5,7 @@ export function Logo({ companyName, logoUrl }: { companyName: string; logoUrl: s
     <Link href="/" aria-label={`${companyName} 홈`} className="flex items-center gap-3">
       {logoUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={logoUrl} alt={companyName} className="h-7 w-auto md:h-8" />
+        <img src={logoUrl} alt={companyName} className="h-9 w-auto md:h-11" />
       ) : (
         <>
           <span className="text-2xl font-semibold leading-none tracking-tight">틈</span>
