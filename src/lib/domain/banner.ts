@@ -30,3 +30,14 @@ export function pickBanner<T extends BannerLike>(list: T[], now: Date): T | null
   }
   return best;
 }
+
+export type BannerStatus = "노출 중" | "예약" | "종료" | "꺼짐";
+
+/** 관리자 목록용 상태. 꺼짐 → 예약 → 종료 → 노출 중 순으로 판정(서울 기준 날짜). */
+export function bannerStatus(b: BannerLike, now: Date): BannerStatus {
+  if (!b.is_active) return "꺼짐";
+  const today = todayInSeoul(now);
+  if (today < b.starts_on) return "예약";
+  if (today > b.ends_on) return "종료";
+  return "노출 중";
+}

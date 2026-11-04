@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { projectSchema } from "@/lib/admin/schemas";
+import { bannerSchema, faqSchema, projectSchema, testimonialSchema } from "@/lib/admin/schemas";
 
 const base = { title: "성수동 32평", category: "residential" };
 
@@ -67,5 +67,59 @@ describe("projectSchema", () => {
     expect(projectSchema.safeParse({ ...base, completed_on: "2026-13-40" }).success).toBe(false);
     const empty = projectSchema.safeParse({ ...base, completed_on: "" });
     expect(empty.success && empty.data.completed_on).toBe(null);
+  });
+});
+
+describe("testimonialSchema", () => {
+  const t = { customer_label: "성수동 김OO님", space_label: "32평 아파트", rating: "5", body: "좋았어요" };
+  it("정상 입력과 연결 안 함", () => {
+    const r = testimonialSchema.safeParse({ ...t, project_id: "" });
+    expect(r.success && r.data.project_id).toBe(null);
+    expect(r.success && r.data.rating).toBe(5);
+  });
+  it("별점 범위, 사례 id, 길이 검사", () => {
+    expect(testimonialSchema.safeParse({ ...t, rating: "0" }).success).toBe(false);
+    expect(testimonialSchema.safeParse({ ...t, rating: "6" }).success).toBe(false);
+    expect(testimonialSchema.safeParse({ ...t, rating: "3.5" }).success).toBe(false);
+    expect(testimonialSchema.safeParse({ ...t, rating: "" }).success).toBe(false);
+    expect(testimonialSchema.safeParse({ ...t, project_id: "abc" }).success).toBe(false);
+    expect(testimonialSchema.safeParse({ ...t, customer_label: "가".repeat(31) }).success).toBe(false);
+    expect(testimonialSchema.safeParse({ ...t, body: "가".repeat(1001) }).success).toBe(false);
+    expect(testimonialSchema.safeParse({ ...t, body: " " }).success).toBe(false);
+  });
+});
+
+describe("faqSchema", () => {
+  it("질문 1~200, 답변 1~2000", () => {
+    expect(faqSchema.safeParse({ question: "q", answer: "a" }).success).toBe(true);
+    expect(faqSchema.safeParse({ question: "", answer: "a" }).success).toBe(false);
+    expect(faqSchema.safeParse({ question: "가".repeat(201), answer: "a" }).success).toBe(false);
+    expect(faqSchema.safeParse({ question: "q", answer: "가".repeat(2001) }).success).toBe(false);
+  });
+});
+
+describe("bannerSchema", () => {
+  const b = { message: "이벤트", link_url: "", starts_on: "2026-11-01", ends_on: "2026-11-30", is_active: "on" };
+  it("정상 입력", () => {
+    const r = bannerSchema.safeParse(b);
+    expect(r.success && r.data.link_url).toBe(null);
+    expect(r.success && r.data.is_active).toBe(true);
+  });
+  it("종료일이 시작일보다 빠르면 실패", () => {
+    const r = bannerSchema.safeParse({ ...b, ends_on: "2026-10-31" });
+    expect(r.success).toBe(false);
+    if (!r.success) expect(r.error.issues[0].message).toBe("종료일은 시작일 이후여야 합니다");
+    expect(bannerSchema.safeParse({ ...b, ends_on: "2026-11-01" }).success).toBe(true);
+  });
+  it("link_url: 내부 경로와 https 만 허용", () => {
+    for (const ok of ["/contact", "/projects?x=1", "https://example.com/a"])
+      expect(bannerSchema.safeParse({ ...b, link_url: ok }).success).toBe(true);
+    for (const bad of ["javascript:alert(1)", "//evil.com", "/\\evil.com", "http://example.com", "data:text/html,x", "example.com", "https://", " javascript:alert(1)"])
+      expect(bannerSchema.safeParse({ ...b, link_url: bad }).success).toBe(false);
+  });
+  it("메시지 1~80, 날짜 필수", () => {
+    expect(bannerSchema.safeParse({ ...b, message: "가".repeat(81) }).success).toBe(false);
+    expect(bannerSchema.safeParse({ ...b, message: "" }).success).toBe(false);
+    expect(bannerSchema.safeParse({ ...b, starts_on: "" }).success).toBe(false);
   });
 });

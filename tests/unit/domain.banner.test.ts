@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { todayInSeoul, isBannerVisible, pickBanner } from "@/lib/domain/banner";
+import { todayInSeoul, isBannerVisible, pickBanner, bannerStatus } from "@/lib/domain/banner";
 
 const b = { is_active: true, starts_on: "2026-11-05", ends_on: "2026-11-30" };
 
@@ -29,5 +29,15 @@ describe("banner", () => {
     expect(pickBanner([c, a], now)?.id).toBe("c");
     expect(pickBanner([a, c], new Date("2026-10-01T00:00:00Z"))).toBeNull();
     expect(pickBanner([], now)).toBeNull();
+  });
+});
+
+describe("bannerStatus", () => {
+  it("꺼짐/예약/노출 중/종료를 서울 날짜로 판정한다", () => {
+    expect(bannerStatus({ ...b, is_active: false }, new Date("2026-11-10T00:00:00Z"))).toBe("꺼짐");
+    expect(bannerStatus(b, new Date("2026-11-04T14:59:59Z"))).toBe("예약");
+    expect(bannerStatus(b, new Date("2026-11-04T16:00:00Z"))).toBe("노출 중");
+    expect(bannerStatus(b, new Date("2026-11-30T14:59:00Z"))).toBe("노출 중");
+    expect(bannerStatus(b, new Date("2026-11-30T15:00:00Z"))).toBe("종료");
   });
 });
