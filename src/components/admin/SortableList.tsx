@@ -85,8 +85,12 @@ export function SortableList<T extends Item>({
     const to = order.findIndex((i) => i.id === over.id);
     if (from < 0 || to < 0) return;
     const next = arrayMove(order, from, to);
+    const previous = order;
     setOrder(next);
-    void onReorder(next.map((i) => i.id));
+    // 저장에 실패하면(onReorder 가 오류를 던지면) 이전 순서로 되돌린다.
+    void Promise.resolve()
+      .then(() => onReorder(next.map((i) => i.id)))
+      .catch(() => setOrder(previous));
   }
 
   return (

@@ -37,6 +37,7 @@ export function ProjectList({ items }: { items: ProjectListItem[] }) {
             router.refresh();
           } catch {
             setErr({ n: Date.now() });
+            throw new Error("reorder failed"); // SortableList 가 이전 순서로 되돌린다
           }
         }}
         renderItem={(p, handle) => (

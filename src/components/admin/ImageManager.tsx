@@ -206,7 +206,16 @@ export function ImageManager({
           <SortableList
             className="space-y-3"
             items={images}
-            onReorder={(ids) => act(() => reorderProjectImages(projectId, ids))}
+            onReorder={async (ids) => {
+              try {
+                await reorderProjectImages(projectId, ids);
+                router.refresh();
+              } catch {
+                say("순서를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요");
+                router.refresh();
+                throw new Error("reorder failed"); // SortableList 가 이전 순서로 되돌린다
+              }
+            }}
             renderItem={(img, handle) => {
               const role = roleOf(img.id);
               return (
