@@ -201,6 +201,13 @@ describe("settingsSchema", () => {
     expect(ok({ ceo_greeting: "가".repeat(3000) }).success).toBe(true);
   });
 
+  it("샘플 이미지 경로는 /samples/소문자-숫자-하이픈.webp 만", () => {
+    expect(ok({ hero_image_path: "/samples/living-after.webp" }).success).toBe(true);
+    for (const bad of ["/samples/..", "/samples/x.png", "/samples/../secret.webp", "/samples/A.webp"]) {
+      expect(msgs({ hero_image_path: bad })).toContain("hero_image_path");
+    }
+  });
+
   it("이미지 경로: 허용 형식만", () => {
     expect(msgs({ logo_path: "projects/x.webp" })).toContain("logo_path");
     expect(msgs({ hero_image_path: "https://evil.com/a.webp" })).toContain("hero_image_path");

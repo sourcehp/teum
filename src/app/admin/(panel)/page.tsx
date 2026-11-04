@@ -29,7 +29,7 @@ export default async function DashboardPage() {
     supabase.from("site_settings").select("company_name, phone, address").eq("id", 1).maybeSingle(),
   ]);
   const c = company.data;
-  const companyEmpty = !c || !c.company_name.trim() || !c.phone.trim() || !c.address.trim();
+  const companyEmpty = !company.error && (!c || !c.company_name.trim() || !c.phone.trim() || !c.address.trim());
   const sampleCount = (sampleProjects.count ?? 0) + (sampleTestimonials.count ?? 0);
 
   return (

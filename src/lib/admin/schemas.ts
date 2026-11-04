@@ -242,7 +242,7 @@ const patternText = (re: RegExp, msg: string) =>
     .pipe(z.union([z.literal(""), z.string().regex(re, { error: msg })]));
 
 export const STORAGE_IMAGE_PATH = /^(settings|partners)\/[0-9a-f-]{36}\.webp$/;
-const SAMPLE_IMAGE_PATH = /^\/samples\/[A-Za-z0-9._-]+$/;
+const SAMPLE_IMAGE_PATH = /^\/samples\/[a-z0-9-]+\.webp$/;
 
 /** 빈 값(없음), Storage 경로, 또는 변경하지 않은 `/samples/...` 값만 허용한다. */
 const imagePath = z
