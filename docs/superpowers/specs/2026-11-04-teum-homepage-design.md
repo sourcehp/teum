@@ -113,7 +113,7 @@
 
 **`site_settings`**: 1행만 존재. 텍스트 컬럼(회사명, 대표자, 사업자등록번호, 주소, 전화, 이메일, 히어로 제목·부제, 혜택 문구, 소개 철학 문구, 대표 인사말, 인스타그램·블로그·카카오톡 채널 URL, 알림 메일, GA4 ID, 네이버·구글 인증 값), 이미지 경로(로고, 히어로 사진, 대표 사진), JSON 컬럼(`stats`: [{label, value, suffix}], `guarantees`: [{title, description}], `partners`: [{name, logo_path, url}]).
 
-알림 메일, GA4 ID 등 일부 항목은 공개 페이지에 노출하지 않는다. 공개용 항목만 담은 뷰(`public_site_settings`)를 따로 둔다.
+알림 메일 주소는 공개 페이지에 노출하지 않는다. 이 컬럼을 뺀 공개용 뷰(`public_site_settings`)를 따로 둔다. GA4 ID와 사이트 인증 값은 HTML에 출력되는 값이므로 뷰에 포함한다.
 
 **`admins`**: user_id(→ auth.users)
 
@@ -139,7 +139,8 @@
 관리자 판정은 `auth.uid()`가 `admins`에 있는지로 한다(`is_admin()` 함수).
 
 ### 4.2 문의 접수
-- 방문자 문의는 Next.js 서버 액션이 서비스 키로 저장한다. 서비스 키는 서버 환경변수에만 두며 클라이언트 번들에 들어가지 않는다.
+- 방문자 문의는 Next.js 서버 액션이 DB 함수(RPC) `submit_inquiry_step1`, `submit_inquiry_step2`, `set_inquiry_notify_status`를 호출해 저장한다. 함수는 `security definer`로 동작하고, 첫 인자로 받은 비밀값이 비공개 스키마(`private.app_config`)에 저장된 값과 같을 때만 실행된다. 비밀값은 서버 환경변수 `INQUIRY_RPC_SECRET`에만 두며 클라이언트 번들에 들어가지 않는다.
+- 앱은 Supabase 서비스 키를 쓰지 않는다. 관리자 작업은 로그인한 관리자 세션과 RLS로만 처리한다.
 - 2단계 저장: 1단계 접수 시 서버가 무작위 토큰을 만들어 방문자에게 돌려주고, DB에는 해시와 만료 시각(24시간)만 저장한다. 2단계 요청은 문의 ID와 토큰이 일치하고 만료 전일 때만 해당 문의 1건의 2단계 컬럼을 갱신한다. 2단계 저장 후 토큰은 폐기한다.
 - 스팸 방어: 숨김 필드(값이 있으면 조용히 성공 응답만 하고 저장하지 않음), 폼 표시 후 3초 이내 제출 거부, 같은 IP 해시로 10분 내 5건 초과 거부. IP는 원문 대신 솔트를 붙인 해시로 저장한다.
 
@@ -160,7 +161,7 @@
 
 ## 6. 콘텐츠 갱신과 캐시
 - 공개 페이지는 정적으로 생성하고 캐시한다.
-- 관리자 저장 액션은 관련 경로를 즉시 재검증한다(사례 저장 → `/`, `/projects`, 해당 상세 / 설정 저장 → 전체 레이아웃).
+- 관리자 저장 액션은 공개 사이트 전체를 즉시 재검증한다(`revalidatePath('/', 'layout')`). 페이지 수가 적어 경로별로 나누는 이득이 없다.
 - 배너 노출 기간이 날짜 경계에서 바뀌도록 공개 페이지는 1시간 주기 재검증도 병행한다.
 
 ## 7. 디자인
@@ -221,7 +222,7 @@
 |---|---|---|
 | NEXT_PUBLIC_SUPABASE_URL | 공개 | |
 | NEXT_PUBLIC_SUPABASE_ANON_KEY | 공개 | |
-| SUPABASE_SERVICE_ROLE_KEY | 서버 전용 | 문의 저장 |
+| INQUIRY_RPC_SECRET | 서버 전용 | 문의 RPC 호출용 비밀값. DB의 `private.app_config`와 같은 값 |
 | RESEND_API_KEY | 서버 전용 | 없으면 메일 생략 |
 | MAIL_FROM | 서버 전용 | 발신 주소 |
 | IP_HASH_SALT | 서버 전용 | |
@@ -236,7 +237,7 @@
 
 ## 12. 샘플 콘텐츠
 - 사례 6건(주거 3, 상업 2, 오피스 1), 후기 3건, FAQ 6건, 배너 1건, 실적 숫자 4개, 보증 3개.
-- 사진은 Unsplash 라이선스 인테리어 사진을 쓰고 출처를 관리자 메모에 남긴다.
+- 샘플 사진은 저장소의 `public/samples/`에 WebP로 넣고 DB에는 `/samples/...` 경로로 기록한다. 사진 출처와 라이선스는 `public/samples/CREDITS.md`에 남긴다. 실제 사진은 관리자 화면에서 업로드하면 Supabase Storage에 저장된다.
 - 사례와 후기는 모두 `is_sample = true`. 대시보드에 "샘플 콘텐츠 N개 공개 중" 경고가 뜬다.
 - 실적 숫자와 보증 문구는 "예시"임을 관리자 설정 화면에 표시하고, 운영 전환 전 실제 값으로 바꿔야 한다.
 
@@ -247,6 +248,9 @@
 - **품질:** 모바일 Lighthouse 성능·접근성·SEO 각 90 이상
 
 ## 14. 배포
+
+개발과 자동 테스트는 로컬 Supabase(Docker, `supabase start`)로 한다. 원격 Supabase·Vercel 작업은 MCP 도구로 처리한다.
+
 1. Supabase 프로젝트 생성(NK 조직, 서울 리전) → 마이그레이션 적용 → 샘플 데이터 입력 → 공개 가입 비활성화
 2. Vercel 프로젝트 생성(NK 팀, 함수 리전 icn1) → 환경변수 등록 → 배포
 3. 작업과 미리보기 배포는 `claude/determined-brown-caf9fu` 브랜치에서 한다. 운영 반영(`main` 병합)은 승인 후 진행한다.
