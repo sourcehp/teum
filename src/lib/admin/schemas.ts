@@ -303,6 +303,12 @@ const visualWorkItem = z.object({
   logo_path: imagePath.transform((v) => v ?? ""),
   url: httpsUrl("작업 링크"),
 });
+const processStepItem = z.object({
+  title: strField(1, 20, "단계 이름을 입력해 주세요", "단계 이름은 20자까지 쓸 수 있습니다"),
+  description: strField(1, 200, "단계 설명을 입력해 주세요", "단계 설명은 200자까지 쓸 수 있습니다"),
+});
+
+const sectionTitle = (label: string) => settingsText(40, label);
 
 const settingsFields = z.object({
   company_name: settingsText(200, "회사명"),
@@ -330,6 +336,14 @@ const settingsFields = z.object({
   guarantees: jsonList(guaranteeItem, 6, "보증"),
   partners: jsonList(partnerItem, 20, "파트너"),
   visual_works: jsonList(visualWorkItem, 20, "시각 디자인 작업"),
+  section_title_projects: sectionTitle("시공 사례 섹션 제목"),
+  section_title_before_after: sectionTitle("Before/After 섹션 제목"),
+  section_title_visual: sectionTitle("시각 디자인 섹션 제목"),
+  section_title_testimonials: sectionTitle("고객 후기 섹션 제목"),
+  section_title_process: sectionTitle("진행 절차 섹션 제목"),
+  section_title_faq: sectionTitle("FAQ 섹션 제목"),
+  section_title_guarantees: sectionTitle("보증 약속 섹션 제목"),
+  process_steps: jsonList(processStepItem, 8, "진행 절차"),
 });
 export const settingsSchema = z.preprocess(fromForm(settingsFields), settingsFields);
 export type SettingsInput = z.infer<typeof settingsFields>;

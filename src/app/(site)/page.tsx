@@ -50,13 +50,13 @@ export default async function HomePage() {
         imageAlt={heroAlt}
       />
       <Stats stats={settings.stats} />
-      <FeaturedProjects projects={projects} />
-      <BeforeAfterHighlight data={highlight} />
-      <VisualWorks visualWorks={settings.visual_works} />
-      <Guarantees guarantees={settings.guarantees} />
-      <Testimonials items={testimonials} />
-      <ProcessSummary />
-      <FaqPreview faqs={faqs} />
+      <FeaturedProjects projects={projects} title={settings.section_title_projects} />
+      <BeforeAfterHighlight data={highlight} title={settings.section_title_before_after} />
+      <VisualWorks visualWorks={settings.visual_works} title={settings.section_title_visual} />
+      <Guarantees guarantees={settings.guarantees} title={settings.section_title_guarantees} />
+      <Testimonials items={testimonials} title={settings.section_title_testimonials} />
+      <ProcessSummary title={settings.section_title_process} steps={settings.process_steps} />
+      <FaqPreview faqs={faqs} title={settings.section_title_faq} />
       <Partners partners={settings.partners} />
       <QuickInquiry phone={settings.phone} />
     </>

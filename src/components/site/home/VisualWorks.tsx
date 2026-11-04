@@ -3,11 +3,11 @@ import { VisualWorkGrid, parseVisualWorks } from "../VisualWorkGrid";
 import { Section } from "../Section";
 
 /** 시각 디자인(BI) 작업 미리보기. 공간 디자인과 함께하는 두 번째 축임을 홈에서 짧게 보여준다. */
-export function VisualWorks({ visualWorks }: { visualWorks: unknown }) {
+export function VisualWorks({ visualWorks, title }: { visualWorks: unknown; title: string }) {
   const items = parseVisualWorks(visualWorks).slice(0, 8);
   if (items.length === 0) return null;
   return (
-    <Section eyebrow="VISUAL IDENTITY" title="공간을 넘어, 브랜드까지">
+    <Section eyebrow="VISUAL IDENTITY" title={title}>
       <p className="-mt-6 mb-10 max-w-xl leading-relaxed text-muted">
         공간 디자인과 함께 로고·브랜드 디자인(BI) 작업도 함께합니다.
       </p>

@@ -3,10 +3,10 @@ import type { Faq } from "@/lib/data/public";
 import { FaqList } from "../FaqList";
 import { Section } from "../Section";
 
-export function FaqPreview({ faqs }: { faqs: Faq[] }) {
+export function FaqPreview({ faqs, title }: { faqs: Faq[]; title: string }) {
   if (faqs.length === 0) return null;
   return (
-    <Section eyebrow="FAQ" title="자주 묻는 질문" className="border-t border-line">
+    <Section eyebrow="FAQ" title={title} className="border-t border-line">
       <div className="max-w-3xl">
         <FaqList faqs={faqs} />
         <div className="mt-10">

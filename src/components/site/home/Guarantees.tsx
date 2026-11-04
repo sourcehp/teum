@@ -1,13 +1,13 @@
 import { Section } from "../Section";
 import { asRecords, text } from "./json";
 
-export function Guarantees({ guarantees }: { guarantees: unknown }) {
+export function Guarantees({ guarantees, title }: { guarantees: unknown; title: string }) {
   const items = asRecords(guarantees)
     .map((g) => ({ title: text(g.title), description: text(g.description) }))
     .filter((g) => g.title);
   if (items.length === 0) return null;
   return (
-    <Section eyebrow="OUR PROMISE" title="틈 없이 지키는 약속" className="border-t border-line">
+    <Section eyebrow="OUR PROMISE" title={title} className="border-t border-line">
       <ul className={`grid gap-px border border-line bg-line ${items.length >= 3 ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2"}`}>
         {items.map((g, i) => (
           <li key={g.title} className="bg-bg p-7 md:p-9">

@@ -5,12 +5,14 @@ import { Section } from "../Section";
 
 export function BeforeAfterHighlight({
   data,
+  title,
 }: {
   data: { project: ProjectCard; before: PublicImage; after: PublicImage } | null;
+  title: string;
 }) {
   if (!data) return null;
   return (
-    <Section eyebrow="BEFORE / AFTER" title="같은 공간, 달라진 하루" className="border-t border-line">
+    <Section eyebrow="BEFORE / AFTER" title={title} className="border-t border-line">
       <div className="grid items-end gap-8 md:grid-cols-[2fr_1fr] md:gap-12">
         <BeforeAfterSlider before={data.before} after={data.after} alt={data.project.title} />
         <div>

@@ -3,6 +3,7 @@ import { createPublicClient } from "@/lib/supabase/public";
 import { pickBanner } from "@/lib/domain/banner";
 import type { BudgetRange, Category } from "@/lib/domain/labels";
 import { mediaUrl } from "@/lib/media";
+import { PROCESS_STEPS } from "@/lib/process-steps";
 import type { Database } from "@/lib/supabase/types";
 
 type Tables = Database["public"]["Tables"];
@@ -67,6 +68,14 @@ export const DEFAULT_SETTINGS: PublicSettings = {
   guarantees: [],
   partners: [],
   visual_works: [],
+  section_title_projects: "최근 시공 사례",
+  section_title_before_after: "같은 공간, 달라진 하루",
+  section_title_visual: "공간을 넘어, 브랜드까지",
+  section_title_testimonials: "함께한 분들의 이야기",
+  section_title_process: "상담에서 사후관리까지, 여섯 단계",
+  section_title_faq: "자주 묻는 질문",
+  section_title_guarantees: "틈 없이 지키는 약속",
+  process_steps: PROCESS_STEPS.map(({ title, description }) => ({ title, description })),
   updated_at: new Date(0).toISOString(),
 };
 

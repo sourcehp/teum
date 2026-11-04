@@ -185,6 +185,19 @@ describe("settingsSchema", () => {
     ).toBe(true);
   });
 
+  it("섹션 제목: 40자 제한, 빈 값 허용", () => {
+    expect(msgs({ section_title_projects: "가".repeat(41) })).toContain("section_title_projects");
+    expect(ok({ section_title_projects: "" }).success).toBe(true);
+    expect(ok({ section_title_faq: "궁금한 점" }).success).toBe(true);
+  });
+
+  it("진행 절차 항목 한도와 필수 값", () => {
+    expect(msgs({ process_steps: JSON.stringify(Array(9).fill({ title: "상담", description: "설명" })) })).toContain("process_steps");
+    expect(msgs({ process_steps: JSON.stringify([{ title: "", description: "설명" }]) })).toContain("process_steps");
+    expect(msgs({ process_steps: JSON.stringify([{ title: "상담", description: "" }]) })).toContain("process_steps");
+    expect(ok({ process_steps: JSON.stringify([{ title: "상담", description: "무료로 상담합니다" }]) }).success).toBe(true);
+  });
+
   it("notify_email 형식 오류 거부", () => {
     expect(msgs({ notify_email: "not-an-email" })).toContain("notify_email");
     expect(ok({ notify_email: "a@b.co" }).success).toBe(true);

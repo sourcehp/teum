@@ -104,7 +104,7 @@ export default async function AboutPage() {
         </div>
       </Section>
 
-      <Guarantees guarantees={s.guarantees} />
+      <Guarantees guarantees={s.guarantees} title={s.section_title_guarantees} />
 
       <Section eyebrow="COMPANY" title="회사 정보" className="border-t border-line">
         <dl className="max-w-3xl border-t border-line">

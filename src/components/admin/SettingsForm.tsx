@@ -32,6 +32,14 @@ export type SettingsValues = {
   guarantees: Record<string, unknown>[];
   partners: Record<string, unknown>[];
   visual_works: Record<string, unknown>[];
+  section_title_projects: string;
+  section_title_before_after: string;
+  section_title_visual: string;
+  section_title_testimonials: string;
+  section_title_process: string;
+  section_title_faq: string;
+  section_title_guarantees: string;
+  process_steps: Record<string, unknown>[];
   updated_at: string;
 };
 
@@ -169,6 +177,34 @@ export function SettingsForm({
                 ]}
               />
             </div>
+          </Section>
+
+          <Section title="홈페이지 섹션 제목" help="홈페이지와 소개 페이지의 각 섹션 제목(소제목)입니다. 영문 태그(PROJECTS, REVIEWS 등)는 디자인 요소라 여기서는 바꿀 수 없습니다.">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <FormField label="시공 사례 섹션 제목" name="section_title_projects" maxLength={40} defaultValue={v.section_title_projects} error={fe.section_title_projects} />
+              <FormField label="Before/After 섹션 제목" name="section_title_before_after" maxLength={40} defaultValue={v.section_title_before_after} error={fe.section_title_before_after} />
+              <FormField label="시각 디자인 섹션 제목" name="section_title_visual" maxLength={40} defaultValue={v.section_title_visual} error={fe.section_title_visual} />
+              <FormField label="고객 후기 섹션 제목" name="section_title_testimonials" maxLength={40} defaultValue={v.section_title_testimonials} error={fe.section_title_testimonials} />
+              <FormField label="진행 절차 섹션 제목" name="section_title_process" maxLength={40} defaultValue={v.section_title_process} error={fe.section_title_process} hint="홈 화면과 진행 절차 페이지에서 함께 쓰입니다" />
+              <FormField label="FAQ 섹션 제목" name="section_title_faq" maxLength={40} defaultValue={v.section_title_faq} error={fe.section_title_faq} />
+              <FormField label="보증 약속 섹션 제목" name="section_title_guarantees" maxLength={40} defaultValue={v.section_title_guarantees} error={fe.section_title_guarantees} hint="홈 화면과 회사 소개 페이지에서 함께 쓰입니다" />
+            </div>
+          </Section>
+
+          <Section title="진행 절차" help="상담부터 사후관리까지의 단계입니다. 홈 화면과 진행 절차 페이지에 그대로 표시됩니다.">
+            <JsonListEditor
+              name="process_steps"
+              itemLabel="단계"
+              addLabel="단계 추가"
+              max={8}
+              initial={v.process_steps}
+              error={fe.process_steps}
+              onDirty={markDirty}
+              fields={[
+                { key: "title", label: "단계 이름 (20자 이내)", maxLength: 20, placeholder: "상담" },
+                { key: "description", label: "단계 설명 (200자 이내)", maxLength: 200, placeholder: "전화나 방문으로 원하는 공간과 예산, 일정을 듣습니다." },
+              ]}
+            />
           </Section>
 
           <Section title="연락 채널" help="푸터와 문의 페이지의 SNS 링크, 화면 오른쪽 아래 카카오톡 버튼에 쓰입니다. https:// 로 시작하는 주소만 쓸 수 있고, 비워 두면 표시되지 않습니다.">

@@ -3,10 +3,10 @@ import type { ProjectCard as Card } from "@/lib/data/public";
 import { ProjectCard } from "../ProjectCard";
 import { Section } from "../Section";
 
-export function FeaturedProjects({ projects }: { projects: Card[] }) {
+export function FeaturedProjects({ projects, title }: { projects: Card[]; title: string }) {
   if (projects.length === 0) return null;
   return (
-    <Section eyebrow="PROJECTS" title="최근 시공 사례">
+    <Section eyebrow="PROJECTS" title={title}>
       <div className="grid gap-x-6 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((p) => (
           <ProjectCard key={p.id} project={p} />
