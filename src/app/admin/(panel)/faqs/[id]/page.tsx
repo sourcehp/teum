@@ -31,7 +31,7 @@ export default async function EditFaqPage({ params }: { params: Promise<{ id: st
         <h2 className="text-lg font-semibold">FAQ 삭제</h2>
         <p className="mt-1 text-sm text-muted">삭제하면 되돌릴 수 없습니다. 잠시 숨기려면 위에서 "공개"를 해제하세요.</p>
         <form action={deleteFaq.bind(null, row.id)} className="mt-3">
-          <ConfirmButton message="이 FAQ을(를) 삭제할까요? 되돌릴 수 없습니다.">삭제</ConfirmButton>
+          <ConfirmButton message="이 FAQ를 삭제할까요? 되돌릴 수 없습니다.">삭제</ConfirmButton>
         </form>
       </section>
     </div>

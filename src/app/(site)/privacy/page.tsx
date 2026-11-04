@@ -35,7 +35,7 @@ export default async function PrivacyPage() {
   return (
     <>
       <PageHeader eyebrow="PRIVACY" title="개인정보처리방침">
-        <p>{company}(이하 &lsquo;회사&rsquo;)은 상담 문의를 접수하기 위해 필요한 최소한의 개인정보만 수집하고, 아래 기준에 따라 처리합니다.</p>
+        <p>{company}(이하 &lsquo;회사&rsquo;)는 상담 문의를 접수하기 위해 필요한 최소한의 개인정보만 수집하고, 아래 기준에 따라 처리합니다.</p>
       </PageHeader>
       <Container className="py-12 md:py-16">
         <div className="max-w-3xl">

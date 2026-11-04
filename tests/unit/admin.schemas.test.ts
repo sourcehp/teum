@@ -214,3 +214,15 @@ describe("settingsSchema", () => {
     expect(ok({ logo_path: `settings/${crypto.randomUUID()}.webp`, hero_image_path: "/samples/a.webp", ceo_image_path: "" }).success).toBe(true);
   });
 });
+
+describe("설정 오류 문구의 조사", () => {
+  it("항목 이름의 받침에 맞는 조사를 쓴다", () => {
+    const r = settingsSchema.safeParse({ instagram_url: "http://x.com", ga4_id: "UA-1" });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      const msgs = r.error.issues.map((i) => i.message);
+      expect(msgs.some((m) => m.startsWith("인스타그램 주소는 "))).toBe(true);
+      expect(msgs.some((m) => m.startsWith("측정 ID는 G-로 시작"))).toBe(true);
+    }
+  });
+});

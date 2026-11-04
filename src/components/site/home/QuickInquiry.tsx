@@ -14,7 +14,7 @@ export function QuickInquiry({ phone }: { phone: string }) {
           </h2>
           <p className="mt-6 leading-relaxed text-muted">
             상담은 무료이며, 접수 후 영업일 기준 1일 안에 연락드립니다.
-            {phone ? ` 급하시면 ${phone}로 전화 주세요.` : ""}
+            {phone ? ` 급하시면 전화 주세요: ${phone}` : ""}
           </p>
         </div>
         <InquiryFlow variant="quick" />

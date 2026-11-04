@@ -31,7 +31,7 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
         <h2 className="text-lg font-semibold">이벤트 배너 삭제</h2>
         <p className="mt-1 text-sm text-muted">삭제하면 되돌릴 수 없습니다. 잠시 내리려면 위에서 "사용"을 해제하세요.</p>
         <form action={deleteBanner.bind(null, row.id)} className="mt-3">
-          <ConfirmButton message="이 이벤트 배너을(를) 삭제할까요? 되돌릴 수 없습니다.">삭제</ConfirmButton>
+          <ConfirmButton message="이 이벤트 배너를 삭제할까요? 되돌릴 수 없습니다.">삭제</ConfirmButton>
         </form>
       </section>
     </div>

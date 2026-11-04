@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { josa } from "@/lib/domain/josa";
 import { inputCls } from "@/components/admin/FormShell";
 import { SingleImageField } from "@/components/admin/SingleImageField";
 
@@ -72,7 +73,7 @@ export function JsonListEditor({
         </p>
       ) : null}
       <input type="hidden" name={name} value={json} />
-      {rows.length === 0 ? <p className="border border-dashed border-line bg-surface p-4 text-sm text-muted">아직 등록한 {itemLabel}이(가) 없습니다.</p> : null}
+      {rows.length === 0 ? <p className="border border-dashed border-line bg-surface p-4 text-sm text-muted">아직 등록한 {josa(itemLabel, "이가")} 없습니다.</p> : null}
       <ol className="space-y-3">
         {rows.map((r, i) => (
           <li key={r.id} className="border border-line bg-surface p-3">

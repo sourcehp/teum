@@ -160,7 +160,7 @@ export function SettingsForm({
 
           <Section title="알림 · 분석 · 검색 등록" help="방문자에게 보이지 않는 설정입니다. 잘 모르면 비워 두어도 됩니다.">
             <FormField label="문의 알림 받을 이메일" name="notify_email" type="email" maxLength={200} defaultValue={v.notify_email} error={fe.notify_email} hint="새 문의가 접수되면 이 주소로 알림 메일을 보냅니다" />
-            <FormField label="Google 애널리스틱스 측정 ID" name="ga4_id" maxLength={50} defaultValue={v.ga4_id} error={fe.ga4_id} hint="G- 로 시작합니다 (예: G-ABC123XYZ). 방문 통계를 보려면 입력하세요" />
+            <FormField label="Google 애널리틱스 측정 ID" name="ga4_id" maxLength={50} defaultValue={v.ga4_id} error={fe.ga4_id} hint="G-로 시작합니다 (예: G-ABC123XYZ). 방문 통계를 보려면 입력하세요" />
             <FormField label="네이버 서치어드바이저 인증 값" name="naver_site_verification" maxLength={100} defaultValue={v.naver_site_verification} error={fe.naver_site_verification} hint="네이버 검색에 사이트를 등록할 때 받은 인증 코드(content 값)" />
             <FormField label="구글 서치콘솔 인증 값" name="google_site_verification" maxLength={100} defaultValue={v.google_site_verification} error={fe.google_site_verification} hint="구글 검색에 사이트를 등록할 때 받은 인증 코드(content 값)" />
           </Section>

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { BUDGET_RANGES, CATEGORIES } from "@/lib/domain/labels";
+import { josa } from "@/lib/domain/josa";
 import { normalizePhone } from "@/lib/domain/phone";
 
 const checkbox = z
@@ -200,7 +201,7 @@ const httpsUrl = (label: string) =>
       if (s === "") return "";
       const r = bannerLink.safeParse(s);
       if (!r.success || s.startsWith("/")) {
-        ctx.addIssue({ code: "custom", message: `${label}은(는) https:// 로 시작하는 주소만 쓸 수 있습니다` });
+        ctx.addIssue({ code: "custom", message: `${josa(label, "은는")} https:// 로 시작하는 주소만 쓸 수 있습니다` });
         return z.NEVER;
       }
       return s;
@@ -210,7 +211,7 @@ const settingsText = (max: number, label: string) =>
   z
     .union([z.string(), z.undefined(), z.null()])
     .transform((v) => (v ?? "").replace(/\r\n/g, "\n").trim())
-    .pipe(z.string().max(max, { error: `${label}은(는) ${max.toLocaleString("ko-KR")}자까지 쓸 수 있습니다` }));
+    .pipe(z.string().max(max, { error: `${josa(label, "은는")} ${max.toLocaleString("ko-KR")}자까지 쓸 수 있습니다` }));
 
 const settingsPhone = z
   .union([z.string(), z.undefined(), z.null()])
@@ -273,7 +274,7 @@ function jsonList<T extends z.ZodType>(item: T, max: number, label: string) {
       ctx.addIssue({ code: "custom", message: `${label} 입력 형식이 올바르지 않습니다. 화면을 새로 고친 뒤 다시 시도해 주세요` });
       return z.NEVER;
     })
-    .pipe(z.array(item).max(max, { error: `${label}은(는) 최대 ${max}개까지 등록할 수 있습니다` }));
+    .pipe(z.array(item).max(max, { error: `${josa(label, "은는")} 최대 ${max}개까지 등록할 수 있습니다` }));
 }
 
 const strField = (min: number, max: number, emptyMsg: string, maxMsg: string) =>
@@ -313,7 +314,7 @@ const settingsFields = z.object({
   blog_url: httpsUrl("블로그 주소"),
   kakao_channel_url: httpsUrl("카카오톡 채널 주소"),
   notify_email: settingsEmail,
-  ga4_id: patternText(/^G-[A-Z0-9]+$/, "측정 ID 는 G- 로 시작하는 영문 대문자·숫자여야 합니다 (예: G-ABC123XYZ)"),
+  ga4_id: patternText(/^G-[A-Z0-9]+$/, "측정 ID는 G-로 시작하는 영문 대문자·숫자여야 합니다 (예: G-ABC123XYZ)"),
   naver_site_verification: patternText(/^[A-Za-z0-9_-]{1,100}$/, "인증 값은 영문, 숫자, -, _ 만 쓸 수 있습니다 (100자 이내)"),
   google_site_verification: patternText(/^[A-Za-z0-9_-]{1,100}$/, "인증 값은 영문, 숫자, -, _ 만 쓸 수 있습니다 (100자 이내)"),
   logo_path: imagePath,
