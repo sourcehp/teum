@@ -4,6 +4,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/admin/auth";
+import { firstError } from "@/lib/admin/results";
 import { revalidateSite } from "@/lib/admin/revalidate";
 import { projectSchema } from "@/lib/admin/schemas";
 import { slugify, uniqueSlug } from "@/lib/domain/slug";
@@ -212,15 +213,17 @@ export async function reorderProjectImages(projectId: string, ids: string[]): Pr
   const { supabase } = await requireAdmin();
   const pid = idSchema.parse(projectId);
   const list = idsSchema.parse(ids);
-  await Promise.all(
+  const results = await Promise.all(
     list.map((id, i) => supabase.from("project_images").update({ sort_order: i }).eq("id", id).eq("project_id", pid)),
   );
+  if (firstError(results)) throw new Error(GENERIC_ERROR);
   revalidateSite();
 }
 
 export async function reorderProjects(ids: string[]): Promise<void> {
   const { supabase } = await requireAdmin();
   const list = idsSchema.parse(ids);
-  await Promise.all(list.map((id, i) => supabase.from("projects").update({ sort_order: i }).eq("id", id)));
+  const results = await Promise.all(list.map((id, i) => supabase.from("projects").update({ sort_order: i }).eq("id", id)));
+  if (firstError(results)) throw new Error(GENERIC_ERROR);
   revalidateSite();
 }

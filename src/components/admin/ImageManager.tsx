@@ -10,6 +10,7 @@ import {
   updateImageAlt,
 } from "@/app/admin/(panel)/projects/actions";
 import { SortableList } from "@/components/admin/SortableList";
+import { UnsavedGuard } from "@/components/admin/UnsavedGuard";
 import { Toast } from "@/components/admin/Toast";
 import { resizeForUpload } from "@/lib/image-resize";
 import { mediaUrl } from "@/lib/media";
@@ -18,7 +19,8 @@ import { createBrowserSupabase } from "@/lib/supabase/browser";
 export type ManagedImage = { id: string; storage_path: string; alt: string };
 type Role = "cover" | "before" | "after";
 type UploadStatus = "waiting" | "converting" | "uploading" | "done" | "failed";
-type Upload = { key: string; file: File; status: UploadStatus; message?: string };
+type Uploaded = { storage_path: string; width: number; height: number };
+type Upload = { key: string; file: File; status: UploadStatus; message?: string; uploaded?: Uploaded };
 
 const STATUS_LABEL: Record<UploadStatus, string> = {
   waiting: "대기",
@@ -58,38 +60,43 @@ export function ImageManager({
   async function run(targets: Upload[]) {
     setBusy(true);
     const supabase = createBrowserSupabase();
-    const uploaded: { storage_path: string; width: number; height: number }[] = [];
-    const okKeys: string[] = [];
+    let registered = 0;
     for (const u of targets) {
+      let item = u.uploaded;
       try {
-        patch(u.key, { status: "converting", message: undefined });
-        const { blob, width, height } = await resizeForUpload(u.file);
-        patch(u.key, { status: "uploading" });
-        const path = `projects/${projectId}/${crypto.randomUUID()}.webp`;
-        const { error } = await supabase.storage
-          .from("media")
-          .upload(path, blob, { contentType: "image/webp", upsert: false });
-        if (error) throw new Error("업로드하지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요");
-        uploaded.push({ storage_path: path, width, height });
-        okKeys.push(u.key);
+        if (!item) {
+          patch(u.key, { status: "converting", message: undefined });
+          const { blob, width, height } = await resizeForUpload(u.file);
+          patch(u.key, { status: "uploading" });
+          const path = `projects/${projectId}/${crypto.randomUUID()}.webp`;
+          const { error } = await supabase.storage
+            .from("media")
+            .upload(path, blob, { contentType: "image/webp", upsert: false });
+          if (error) throw new Error("업로드하지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요");
+          item = { storage_path: path, width, height };
+          patch(u.key, { uploaded: item });
+        }
       } catch (e) {
         patch(u.key, { status: "failed", message: e instanceof Error ? e.message : "알 수 없는 오류가 발생했습니다" });
+        continue;
       }
-    }
-    if (uploaded.length > 0) {
+      // 올린 즉시 등록한다. 등록만 실패하면 같은 경로로 등록을 다시 시도한다(재업로드 없음).
       try {
-        await addProjectImages(projectId, uploaded);
-        okKeys.forEach((k) => patch(k, { status: "done" }));
-        say(`사진 ${uploaded.length}장을 올렸습니다`, "success");
+        patch(u.key, { status: "uploading", message: undefined });
+        await addProjectImages(projectId, [item]);
+        patch(u.key, { status: "done", uploaded: undefined });
+        registered++;
         router.refresh();
       } catch {
-        okKeys.forEach((k) => patch(k, { status: "failed", message: "사진 정보를 저장하지 못했습니다. 다시 시도해 주세요" }));
+        patch(u.key, { status: "failed", message: "사진 정보를 저장하지 못했습니다. 다시 시도해 주세요" });
       }
     }
+    if (registered > 0) say(`사진 ${registered}장을 올렸습니다`, "success");
     setBusy(false);
   }
 
   function pick(files: FileList | File[]) {
+    if (busy) return;
     const list = Array.from(files).filter((f) => f.type.startsWith("image/") || /\.(heic|heif)$/i.test(f.name));
     if (list.length === 0) {
       say("사진 파일만 올릴 수 있습니다");
@@ -120,6 +127,7 @@ export function ImageManager({
 
   return (
     <section aria-labelledby="photos-h" className="space-y-4">
+      <UnsavedGuard dirty={busy} />
       <h2 id="photos-h" className="text-lg font-semibold">
         사진
       </h2>
@@ -133,18 +141,19 @@ export function ImageManager({
         onDrop={(e) => {
           e.preventDefault();
           setDragOver(false);
-          if (e.dataTransfer.files.length) pick(e.dataTransfer.files);
+          if (!busy && e.dataTransfer.files.length) pick(e.dataTransfer.files);
         }}
         className={`border-2 border-dashed p-6 text-center ${dragOver ? "border-accent bg-accent/10" : "border-line bg-surface"}`}
       >
         <p className="text-sm text-muted">사진을 여기로 끌어 놓거나, 아래 버튼으로 여러 장을 한 번에 선택하세요.</p>
-        <label className="mt-3 inline-block cursor-pointer bg-ink px-5 py-2.5 text-sm font-medium text-bg hover:bg-accent-ink">
-          사진 선택
+        <label className={`mt-3 inline-block bg-ink px-5 py-2.5 text-sm font-medium text-bg hover:bg-accent-ink ${busy ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}>
+          {busy ? "올리는 중…" : "사진 선택"}
           <input
             ref={inputRef}
             type="file"
             accept="image/*"
             multiple
+            disabled={busy}
             className="sr-only"
             data-testid="photo-input"
             onChange={(e) => {
