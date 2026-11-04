@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import type { ProjectCard as Card } from "@/lib/data/public";
 import { filterProjects, filterToQuery, parseProjectFilter, type ProjectFilter } from "@/lib/project-filters";
 import { ProjectFilters } from "./ProjectFilters";
-import { ProjectList } from "./ProjectGridStatic";
+import { ProjectList, ResultCount } from "./ProjectGridStatic";
 
 export function ProjectGrid({ projects }: { projects: Card[] }) {
   const router = useRouter();
@@ -22,9 +22,7 @@ export function ProjectGrid({ projects }: { projects: Card[] }) {
   return (
     <div>
       <ProjectFilters filter={filter} onChange={apply} />
-      <p className="mt-8 border-t border-line pt-6 text-sm text-muted" aria-live="polite">
-        {shown.length}개의 사례
-      </p>
+      <ResultCount count={shown.length} />
       {shown.length === 0 ? (
         <div className="py-20 text-center">
           <p className="text-lg">조건에 맞는 사례가 없습니다</p>
