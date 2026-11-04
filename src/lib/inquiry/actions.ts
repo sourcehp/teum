@@ -43,7 +43,7 @@ async function clientIp(): Promise<string> {
 export async function submitInquiryStep1(_prev: Step1State, fd: FormData): Promise<Step1State> {
   const values = { name: str(fd, "name"), phone: str(fd, "phone"), space_type: str(fd, "space_type") };
 
-  const spam = checkSpam({ honeypot: str(fd, "website"), renderedAt: Number(str(fd, "rendered_at")) || 0, now: Date.now() });
+  const spam = checkSpam({ honeypot: str(fd, "website"), renderedAt: str(fd, "rendered_at") === "" ? null : Number(str(fd, "rendered_at")), now: Date.now() });
   if (spam === "honeypot") return { status: "success", inquiryId: crypto.randomUUID(), token: "" };
   if (spam === "too_fast") return { status: "error", message: "잠시 후 다시 시도해 주세요", values };
 
