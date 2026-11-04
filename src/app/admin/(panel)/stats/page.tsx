@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { requireAdmin } from "@/lib/admin/auth";
-import { CHANNEL_LABELS } from "@/lib/domain/channel";
+import { channelLabel } from "@/lib/domain/channel";
 import { INQUIRY_STATUSES, STATUS_LABELS, type InquiryStatus } from "@/lib/domain/labels";
 import { aggregateByChannel } from "@/lib/domain/stats";
 
@@ -81,7 +81,7 @@ export default async function StatsPage({
               {stats.map((r) => (
                 <tr key={r.channel} className="border-b border-line last:border-b-0">
                   <th scope="row" className="px-4 py-3 font-medium">
-                    {CHANNEL_LABELS[r.channel] ?? r.channel}
+                    {channelLabel(r.channel)}
                   </th>
                   <td className="px-4 py-3 text-right tabular-nums">{r.total}</td>
                   {INQUIRY_STATUSES.map((s) => (

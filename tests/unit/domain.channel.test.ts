@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { classifyChannel, CHANNEL_LABELS } from "@/lib/domain/channel";
+import { classifyChannel, channelLabel, CHANNEL_LABELS } from "@/lib/domain/channel";
 
 const c = (utm_source: string | null, referrer: string | null) => classifyChannel({ utm_source, referrer });
 
@@ -34,5 +34,15 @@ describe("classifyChannel", () => {
       naver: "네이버", google: "구글", instagram: "인스타그램", facebook: "페이스북",
       kakao: "카카오", youtube: "유튜브", direct: "직접 방문",
     });
+  });
+});
+
+describe("channelLabel", () => {
+  it("알려진 채널은 한글 라벨, 그 외는 원문 (프로토타입 키 포함)", () => {
+    expect(channelLabel("naver")).toBe("네이버");
+    expect(channelLabel("__proto__")).toBe("__proto__");
+    expect(channelLabel("constructor")).toBe("constructor");
+    expect(channelLabel("toString")).toBe("toString");
+    expect(channelLabel("unknown.example")).toBe("unknown.example");
   });
 });

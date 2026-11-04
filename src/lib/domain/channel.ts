@@ -8,6 +8,11 @@ export const CHANNEL_LABELS: Record<string, string> = {
   direct: "직접 방문",
 };
 
+/** utm_source 는 방문자가 정하는 값이라 '__proto__' 같은 키도 올 수 있다. 자기 속성만 조회한다. */
+export function channelLabel(c: string): string {
+  return Object.hasOwn(CHANNEL_LABELS, c) ? CHANNEL_LABELS[c] : c;
+}
+
 const HOST_CHANNELS: [string, string[]][] = [
   ["naver", ["naver.com"]],
   ["google", ["google.com", "google.co.kr"]],

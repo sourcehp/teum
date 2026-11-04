@@ -4,7 +4,7 @@ import { z } from "zod";
 import { PageHeader } from "@/components/admin/PageHeader";
 import { StatusSelect } from "@/components/admin/StatusSelect";
 import { requireAdmin } from "@/lib/admin/auth";
-import { CHANNEL_LABELS, classifyChannel } from "@/lib/domain/channel";
+import { channelLabel, classifyChannel } from "@/lib/domain/channel";
 import { formatSeoulDateTime } from "@/lib/domain/datetime";
 import { BUDGET_LABELS, CATEGORY_LABELS, type BudgetRange, type Category } from "@/lib/domain/labels";
 
@@ -36,7 +36,6 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
   if (!q) notFound();
 
   const channel = classifyChannel(q);
-  const channelLabel = CHANNEL_LABELS[channel] ?? channel;
 
   return (
     <div>
@@ -67,14 +66,14 @@ export default async function InquiryDetailPage({ params }: { params: Promise<{ 
               <Row label="예산">
                 {q.budget_range ? (BUDGET_LABELS[q.budget_range as BudgetRange] ?? q.budget_range) : "—"}
               </Row>
-              <Row label="착공 시기">{dash(q.desired_start)}</Row>
+              <Row label="희망 시기">{dash(q.desired_start)}</Row>
               <Row label="내용">{dash(q.message)}</Row>
             </dl>
           </section>
           <section className="border border-line bg-surface p-4">
             <h2 className="mb-2 font-semibold">유입 정보</h2>
             <dl>
-              <Row label="유입 채널">{channelLabel}</Row>
+              <Row label="유입 채널">{channelLabel(channel)}</Row>
               <Row label="UTM 출처">{dash(q.utm_source)}</Row>
               <Row label="UTM 매체">{dash(q.utm_medium)}</Row>
               <Row label="UTM 캠페인">{dash(q.utm_campaign)}</Row>
