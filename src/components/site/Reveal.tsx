@@ -44,8 +44,9 @@ export function Reveal({ children, className = "" }: { children: ReactNode; clas
         };
 
   return (
-    <div ref={ref} className={className} style={style}>
-      {children}
+    // 관찰 대상은 clip-path가 없는 바깥 요소여야 한다. 잘린 요소는 교차 면적이 0으로 계산돼 영영 나타나지 않는다.
+    <div ref={ref} className={className}>
+      <div style={style}>{children}</div>
     </div>
   );
 }
