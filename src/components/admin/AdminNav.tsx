@@ -13,6 +13,7 @@ const ITEMS = [
   { href: "/admin/inquiries", label: "상담 문의", badge: true },
   { href: "/admin/stats", label: "유입 통계" },
   { href: "/admin/settings", label: "사이트 설정" },
+  { href: "/admin/account", label: "내 계정" },
 ] as const;
 
 export function AdminNav({

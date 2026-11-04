@@ -47,7 +47,7 @@ test("잘못된 값은 항목별 오류를 보여 주고 입력을 지우지 않
   await page.getByLabel("Google 애널리틱스 측정 ID").fill("UA-123");
   await page.getByRole("button", { name: "설정 저장" }).click();
   await expect(page.getByText("전화번호 형식이 맞지 않습니다")).toBeVisible();
-  await expect(page.getByText(/인스타그램 주소은\(는\) https/)).toBeVisible();
+  await expect(page.getByText(/인스타그램 주소는 https/)).toBeVisible();
   await expect(page.getByText(/G-로 시작하는 영문 대문자/)).toBeVisible();
   await expect(page.getByLabel("대표 전화번호")).toHaveValue("abc");
 });
