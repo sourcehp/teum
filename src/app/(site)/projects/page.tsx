@@ -24,6 +24,7 @@ export default async function ProjectsPage() {
             공간마다 다른 이야기를 담아 완성한 틈디자인스튜디오의 시공 사례입니다.
           </p>
         </header>
+        <h2 className="sr-only">시공 사례 목록</h2>
         <Suspense fallback={<ProjectGridStatic projects={projects} />}>
           <ProjectGrid projects={projects} />
         </Suspense>
