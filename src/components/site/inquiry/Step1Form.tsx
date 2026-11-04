@@ -79,7 +79,7 @@ export function Step1Form({ onSuccess }: { onSuccess: (s: Extract<Step1State, { 
 
       <div>
         <div className="flex items-start gap-3">
-          <input id="q-privacy" name="privacy" type="checkbox" className="mt-1 size-5 accent-[#8a6a4c]"
+          <input id="q-privacy" name="privacy" type="checkbox" defaultChecked={!!values.privacy} className="mt-1 size-5 accent-[#8a6a4c]"
             aria-invalid={!!errors.privacy} aria-describedby={errors.privacy ? "q-privacy-err" : undefined} />
           <label htmlFor="q-privacy" className="text-sm leading-relaxed">
             개인정보 수집·이용 동의 (필수){" "}

@@ -53,7 +53,7 @@ describe("InquiryFlow", () => {
       status: "error",
       message: "입력 내용을 확인해 주세요",
       fieldErrors: { phone: "연락처 형식을 확인해 주세요" },
-      values: { name: "홍길동", phone: "123", space_type: "residential" },
+      values: { name: "홍길동", phone: "123", space_type: "residential", privacy: "on" },
     });
     render(<InquiryFlow variant="quick" />);
     await fill();
@@ -62,5 +62,23 @@ describe("InquiryFlow", () => {
     expect(alert.textContent).toContain("입력 내용을 확인해 주세요");
     expect(screen.getByText("연락처 형식을 확인해 주세요")).toBeTruthy();
     expect((screen.getByLabelText("연락처") as HTMLInputElement).value).toBe("123");
+    expect((screen.getByLabelText(/개인정보 수집·이용 동의/) as HTMLInputElement).checked).toBe(true);
+  });
+});
+
+describe("Step2Form", () => {
+  it("오류가 나도 입력한 내용이 지워지지 않는다", async () => {
+    step1.mockResolvedValue({ status: "success", inquiryId: "id1", token: "tok" });
+    step2.mockResolvedValue({ status: "error", message: "입력 내용을 확인해 주세요", fieldErrors: { email: "이메일 형식을 확인해 주세요" } });
+    render(<InquiryFlow variant="quick" />);
+    await fill();
+    await userEvent.click(screen.getByRole("button", { name: "무료 상담 신청" }));
+    await screen.findByLabelText("지역");
+    await userEvent.type(screen.getByLabelText("문의 내용"), "거실 확장 상담");
+    await userEvent.type(screen.getByLabelText("지역"), "서울 성동구");
+    await userEvent.click(screen.getByRole("button", { name: "추가 정보 보내기" }));
+    expect(await screen.findByText("이메일 형식을 확인해 주세요")).toBeTruthy();
+    expect((screen.getByLabelText("문의 내용") as HTMLTextAreaElement).value).toBe("거실 확장 상담");
+    expect((screen.getByLabelText("지역") as HTMLInputElement).value).toBe("서울 성동구");
   });
 });

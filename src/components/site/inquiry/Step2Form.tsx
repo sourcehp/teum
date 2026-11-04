@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { startTransition, useActionState, useEffect } from "react";
 import { submitInquiryStep2, type Step2State } from "@/lib/inquiry/actions";
 import { BUDGET_LABELS, BUDGET_RANGES } from "@/lib/domain/labels";
 import { track } from "@/lib/analytics";
@@ -34,7 +34,13 @@ export function Step2Form({
   const e = (n: string) => (errors[n] ? `s2-${n}-err` : undefined);
 
   return (
-    <form action={action} noValidate className="space-y-6">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault(); // 오류가 있어도 입력한 내용이 지워지지 않게 폼 자동 초기화를 쓰지 않는다.
+        const fd = new FormData(e.currentTarget);
+        startTransition(() => action(fd));
+      }}
+      noValidate className="space-y-6">
       {state.status === "error" ? (
         <p role="alert" className="border border-[#a33a2a]/40 bg-surface px-4 py-3 text-sm text-[#a33a2a]">{state.message}</p>
       ) : null}

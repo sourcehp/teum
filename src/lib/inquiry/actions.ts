@@ -2,7 +2,6 @@
 
 import { headers } from "next/headers";
 import { createPublicClient } from "@/lib/supabase/public";
-import { CATEGORY_LABELS, type Category } from "@/lib/domain/labels";
 import { step1Schema, step2Schema } from "./schema";
 import { checkSpam } from "./spam";
 import { createDetailToken, hashIp, hashToken } from "./token";
@@ -41,13 +40,13 @@ async function clientIp(): Promise<string> {
 }
 
 export async function submitInquiryStep1(_prev: Step1State, fd: FormData): Promise<Step1State> {
-  const values = { name: str(fd, "name"), phone: str(fd, "phone"), space_type: str(fd, "space_type") };
+  const values = { name: str(fd, "name"), phone: str(fd, "phone"), space_type: str(fd, "space_type"), privacy: str(fd, "privacy") };
 
   const spam = checkSpam({ honeypot: str(fd, "website"), renderedAt: str(fd, "rendered_at") === "" ? null : Number(str(fd, "rendered_at")), now: Date.now() });
   if (spam === "honeypot") return { status: "success", inquiryId: crypto.randomUUID(), token: "" };
   if (spam === "too_fast") return { status: "error", message: "잠시 후 다시 시도해 주세요", values };
 
-  const parsed = step1Schema.safeParse({ ...values, privacy: str(fd, "privacy") });
+  const parsed = step1Schema.safeParse({ ...values, privacy: values.privacy });
   if (!parsed.success) {
     return { status: "error", message: "입력 내용을 확인해 주세요", fieldErrors: fieldErrors(parsed.error.issues), values };
   }
@@ -86,7 +85,7 @@ export async function submitInquiryStep1(_prev: Step1State, fd: FormData): Promi
   // 알림 실패는 접수 성공에 영향을 주지 않는다.
   try {
     const result = await notifyNewInquiry(
-      { id: row.id, name: input.name, phone: input.phone, space_type: input.space_type as Category, created_at: new Date().toISOString() },
+      { id: row.id, name: input.name, phone: input.phone, space_type: input.space_type, created_at: new Date().toISOString() },
       row.notify_email || null,
     );
     await supabase.rpc("set_inquiry_notify_status", { p_secret: secret, p_id: row.id, p_status: result });
